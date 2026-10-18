@@ -34,3 +34,51 @@ export const mockUpcomingBookings: Booking[] = [
   { id: "b2", dateLabel: "Di · 21. Okt", time: "07:00 — 08:30", location: "Private Gym" },
   { id: "b3", dateLabel: "Fr · 24. Okt", time: "19:00 — 20:00", location: "Private Gym" },
 ];
+
+/** Membership plans, mirroring the offer on soleus.at. */
+export const mockPlans = [
+  {
+    id: "standard",
+    perWeek: "1×",
+    name: "Standard",
+    tagline: "Perfekt für den Einstieg",
+    price: "49,90",
+    oldPrice: null,
+    badge: null,
+    highlight: false,
+    features: ["1 Training pro Woche", "Volle Geräteausstattung", "Flexible Buchung 24/7"],
+  },
+  {
+    id: "plus",
+    perWeek: "2×",
+    name: "Plus",
+    tagline: "Unser beliebtestes Paket",
+    price: "74,90",
+    oldPrice: null,
+    badge: "Beliebt",
+    highlight: true,
+    features: ["2 Trainings pro Woche", "Volle Geräteausstattung", "Flexible Buchung 24/7", "Bestes Preis-Leistungs-Verhältnis"],
+  },
+  {
+    id: "premium",
+    perWeek: "3×",
+    name: "Premium",
+    tagline: "Maximale Ergebnisse",
+    price: "89,90",
+    oldPrice: null,
+    badge: null,
+    highlight: false,
+    features: ["3 Trainings pro Woche", "Volle Geräteausstattung", "Flexible Buchung 24/7", "Ideal für ambitionierte Ziele"],
+  },
+  {
+    id: "unlimited",
+    perWeek: "∞",
+    name: "Unlimited",
+    tagline: "Für maximale Frequenz",
+    price: "109,90",
+    oldPrice: "149,90 € / Monat",
+    badge: "Special Offer",
+    highlight: false,
+    features: ["Unlimitierte Trainings pro Woche", "Volle Geräteausstattung", "Flexible Buchung 24/7", "Maximale Trainingsfrequenz"],
+  },
+] as const;
