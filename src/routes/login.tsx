@@ -35,7 +35,7 @@ function Login() {
             Passwort vergessen?
           </Link>
         </div>
-        <Button type="submit" className="w-full">Anmelden</Button>
+        <Button type="submit" className="w-full bg-[#211d1b] hover:bg-[#211d1b]/90">Anmelden</Button>
       </form>
       <p className="mt-10 text-sm text-muted-foreground">
         Noch kein Konto?{" "}

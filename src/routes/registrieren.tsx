@@ -58,7 +58,7 @@ function Register() {
           </span>
         </label>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" className="w-full" disabled={!agb}>Registrieren</Button>
+        <Button type="submit" className="w-full bg-[#211d1b] hover:bg-[#211d1b]/90" disabled={!agb}>Registrieren</Button>
       </form>
       <p className="mt-10 text-sm text-muted-foreground">
         Bereits registriert?{" "}
