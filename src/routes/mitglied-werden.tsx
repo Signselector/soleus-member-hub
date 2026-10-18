@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
-import { ButtonLink, Eyebrow, Wordmark } from "@/components/ui-soleus/primitives";
+import { createFileRoute } from "@tanstack/react-router";
+import { ArrowUpRight, Check } from "lucide-react";
+import { PublicHeader } from "@/components/layout/PublicHeader";
+import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
 import { mockPlans } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/mitglied-werden")({
@@ -17,16 +18,10 @@ export const Route = createFileRoute("/mitglied-werden")({
 
 function Page() {
   return (
-    <div className="min-h-screen bg-secondary px-6 py-8 md:px-10 md:py-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between">
-          <Wordmark />
-          <Link to="/willkommen" className="eyebrow inline-flex items-center gap-2 transition-colors hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} /> Zurück
-          </Link>
-        </div>
-
-        <div className="mt-16 grid animate-rise gap-8 md:mt-24 md:grid-cols-2 md:items-start md:gap-16">
+    <div className="min-h-screen bg-secondary">
+      <PublicHeader back="/willkommen" wide />
+      <div className="mx-auto max-w-7xl px-6 pb-12 md:px-10 md:pb-16">
+        <div className="mt-12 grid animate-rise gap-8 md:mt-20 md:grid-cols-2 md:items-start md:gap-16">
           <div>
             <Eyebrow>Mitgliedschaft</Eyebrow>
             <h1 className="mt-5 text-4xl leading-[1.1] font-light tracking-tight md:text-6xl">Mitglied werden.</h1>
