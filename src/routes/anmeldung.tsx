@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, ShoppingBag, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, Pencil, ShoppingBag, Users, X } from "lucide-react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SignaturePad } from "@/components/onboarding/SignaturePad";
 import { Button, Eyebrow, Field } from "@/components/ui-soleus/primitives";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { eur, emptyOnboarding, startGoCardlessCheckout, type OnboardingData } from "@/lib/onboarding";
-import { mockAddons, mockFamilyFriends, mockGoals, mockPlans } from "@/lib/mock-data";
+import { austrianStates, mockAddons, mockFamilyFriends, mockGoals, mockPlans } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/anmeldung")({
@@ -72,11 +73,17 @@ function YesNo({ label, value, onChange }: { label: string; value: "yes" | "no" 
 }
 
 function Signup() {
-  const { plan: planId } = Route.useSearch();
+  const { plan: initialPlan } = Route.useSearch();
   const navigate = useNavigate();
-  const plan = mockPlans.find((p) => p.id === planId) ?? mockPlans[0];
   const [step, setStep] = useState(0);
-  const [d, setD] = useState<OnboardingData>(() => emptyOnboarding(plan.id));
+  const [d, setD] = useState<OnboardingData>(() => emptyOnboarding((mockPlans.find((p) => p.id === initialPlan) ?? mockPlans[0]).id));
+  const [planOpen, setPlanOpen] = useState(false);
+  const plan = mockPlans.find((p) => p.id === d.planId) ?? mockPlans[0];
+  const changePlan = (id: string) => {
+    set("planId", id);
+    setPlanOpen(false);
+    navigate({ to: "/anmeldung", search: { plan: id }, replace: true });
+  };
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const set = <K extends keyof OnboardingData>(k: K, v: OnboardingData[K]) => setD((p) => ({ ...p, [k]: v }));
@@ -112,18 +119,63 @@ function Signup() {
       <PublicHeader back="/mitglied-werden" />
       <div className="mx-auto max-w-3xl px-6 pb-16 md:px-10 md:pb-24">
         <div className="mt-10 md:mt-16">
-          <div className="flex items-center justify-between gap-4">
-            <Eyebrow>
-              Schritt {step + 1} von {STEPS.length}
-            </Eyebrow>
-            <p className="eyebrow text-foreground">
-              {plan.name} · {plan.price} € / Monat
-            </p>
-          </div>
+          <Eyebrow>
+            Schritt {step + 1} von {STEPS.length}
+          </Eyebrow>
           <div className="mt-4 h-px w-full bg-foreground/15" role="progressbar" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1}>
             <div className="h-px bg-foreground transition-all duration-500" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
           </div>
-          <h1 className="mt-10 text-4xl leading-[1.1] font-light tracking-tight md:text-5xl">{STEPS[step]?.title}</h1>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-2xl bg-[#211d1b] px-6 py-5 text-[#f7f5f1] shadow-[0_18px_40px_-18px_rgba(33,29,27,0.45)] md:px-8">
+            <div>
+              <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-[#f7f5f1]/70">Dein Paket</p>
+              <p className="mt-2 flex flex-wrap items-baseline gap-x-3">
+                <span className="text-2xl font-medium tracking-tight">{plan.name}</span>
+                <span className="text-sm font-light text-[#f7f5f1]/75">{plan.perWeek} pro Woche</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-5">
+              <p className="flex items-baseline gap-1.5">
+                <span className="text-3xl font-light tabular-nums">{plan.price}</span>
+                <span className="text-sm font-light text-[#f7f5f1]/75">€ / Monat</span>
+              </p>
+              <Dialog open={planOpen} onOpenChange={setPlanOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-10 items-center gap-2 rounded-full bg-[#e8dfcd] px-5 text-[0.6875rem] font-bold uppercase tracking-[0.18em] text-[#3b2a20] transition-colors hover:bg-[#e8dfcd]/90"
+                  >
+                    <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} /> Ändern
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg gap-0 rounded-2xl border-0 bg-[#f7f5f1] p-6 md:p-8">
+                  <DialogTitle className="text-2xl font-light tracking-tight">Paket ändern</DialogTitle>
+                  <DialogDescription className="mt-2 text-sm text-muted-foreground">Wähle das Paket, das besser zu dir passt.</DialogDescription>
+                  <div className="mt-6 space-y-3">
+                    {mockPlans.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => changePlan(p.id)}
+                        aria-pressed={p.id === plan.id}
+                        className={cn(
+                          "flex w-full items-center justify-between gap-4 rounded-xl border px-5 py-4 text-left transition-colors",
+                          p.id === plan.id ? "border-[#211d1b] bg-[#211d1b] text-[#f7f5f1]" : "border-border bg-card hover:border-foreground/40",
+                        )}
+                      >
+                        <span>
+                          <span className="block text-base font-medium">{p.name}</span>
+                          <span className={cn("block text-sm font-light", p.id === plan.id ? "text-[#f7f5f1]/75" : "text-muted-foreground")}>{p.perWeek} pro Woche</span>
+                        </span>
+                        <span className="tabular-nums">{p.price} € / Monat</span>
+                      </button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+          <h1 className="mt-12 text-4xl leading-[1.1] font-light tracking-tight md:text-5xl">{STEPS[step]?.title}</h1>
           <p className="mt-4 max-w-lg text-base leading-relaxed font-light text-muted-foreground">{STEPS[step]?.intro}</p>
         </div>
 
@@ -150,7 +202,27 @@ function Signup() {
                   <Field id="zip" label="Postleitzahl *" required inputMode="numeric" autoComplete="postal-code" value={d.zip} onChange={(e) => set("zip", e.target.value)} />
                   <Field id="ct" label="Stadt *" required autoComplete="address-level2" value={d.city} onChange={(e) => set("city", e.target.value)} />
                 </div>
-                <Field id="bl" label="Bundesland *" required autoComplete="address-level1" value={d.state} onChange={(e) => set("state", e.target.value)} />
+                <label htmlFor="bl" className="block">
+                  <span className="eyebrow">Bundesland *</span>
+                  <span className="relative mt-2 block">
+                    <select
+                      id="bl"
+                      required
+                      autoComplete="address-level1"
+                      value={d.state}
+                      onChange={(e) => set("state", e.target.value)}
+                      className={cn("block h-12 w-full cursor-pointer appearance-none border-0 border-b border-border bg-transparent pr-8 text-base transition-colors focus:border-foreground focus:outline-none", d.state ? "text-foreground" : "text-muted-foreground/60")}
+                    >
+                      <option value="">Bitte wählen</option>
+                      {austrianStates.map((b) => (
+                        <option key={b} value={b} className="text-foreground">
+                          {b}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute top-1/2 right-0 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+                  </span>
+                </label>
               </>
             )}
 
