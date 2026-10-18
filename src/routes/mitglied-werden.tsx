@@ -73,7 +73,8 @@ function Page() {
               </ul>
 
               <ButtonLink
-                to="/mitgliedschaft"
+                to="/anmeldung"
+                search={{ plan: p.id }}
                 variant={p.highlight ? "sand" : "primary"}
                 className={`mt-10 w-full font-bold ${p.highlight ? "bg-[#e8dfcd] text-[#3b2a20] hover:bg-[#e8dfcd]/90" : ""}`}
               >

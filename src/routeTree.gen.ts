@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnmeldungRouteImport } from './routes/anmeldung'
 import { Route as BuchenRouteImport } from './routes/buchen'
 import { Route as BuchungenRouteImport } from './routes/buchungen'
 import { Route as FamilyRouteImport } from './routes/family'
@@ -23,10 +24,16 @@ import { Route as ProblemMeldenRouteImport } from './routes/problem-melden'
 import { Route as ProfilRouteImport } from './routes/profil'
 import { Route as RegistrierenRouteImport } from './routes/registrieren'
 import { Route as WillkommenRouteImport } from './routes/willkommen'
+import { Route as ZahlungRouteImport } from './routes/zahlung'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnmeldungRoute = AnmeldungRouteImport.update({
+  id: '/anmeldung',
+  path: '/anmeldung',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuchenRoute = BuchenRouteImport.update({
@@ -94,9 +101,15 @@ const WillkommenRoute = WillkommenRouteImport.update({
   path: '/willkommen',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ZahlungRoute = ZahlungRouteImport.update({
+  id: '/zahlung',
+  path: '/zahlung',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anmeldung': typeof AnmeldungRoute
   '/buchen': typeof BuchenRoute
   '/buchungen': typeof BuchungenRoute
   '/family': typeof FamilyRoute
@@ -110,9 +123,11 @@ export interface FileRoutesByFullPath {
   '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
+  '/zahlung': typeof ZahlungRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anmeldung': typeof AnmeldungRoute
   '/buchen': typeof BuchenRoute
   '/buchungen': typeof BuchungenRoute
   '/family': typeof FamilyRoute
@@ -126,10 +141,12 @@ export interface FileRoutesByTo {
   '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
+  '/zahlung': typeof ZahlungRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anmeldung': typeof AnmeldungRoute
   '/buchen': typeof BuchenRoute
   '/buchungen': typeof BuchungenRoute
   '/family': typeof FamilyRoute
@@ -143,11 +160,13 @@ export interface FileRoutesById {
   '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
+  '/zahlung': typeof ZahlungRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/anmeldung'
     | '/buchen'
     | '/buchungen'
     | '/family'
@@ -161,9 +180,11 @@ export interface FileRouteTypes {
     | '/profil'
     | '/registrieren'
     | '/willkommen'
+    | '/zahlung'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anmeldung'
     | '/buchen'
     | '/buchungen'
     | '/family'
@@ -177,9 +198,11 @@ export interface FileRouteTypes {
     | '/profil'
     | '/registrieren'
     | '/willkommen'
+    | '/zahlung'
   id:
     | '__root__'
     | '/'
+    | '/anmeldung'
     | '/buchen'
     | '/buchungen'
     | '/family'
@@ -193,10 +216,12 @@ export interface FileRouteTypes {
     | '/profil'
     | '/registrieren'
     | '/willkommen'
+    | '/zahlung'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnmeldungRoute: typeof AnmeldungRoute
   BuchenRoute: typeof BuchenRoute
   BuchungenRoute: typeof BuchungenRoute
   FamilyRoute: typeof FamilyRoute
@@ -210,6 +235,7 @@ export interface RootRouteChildren {
   ProfilRoute: typeof ProfilRoute
   RegistrierenRoute: typeof RegistrierenRoute
   WillkommenRoute: typeof WillkommenRoute
+  ZahlungRoute: typeof ZahlungRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anmeldung': {
+      id: '/anmeldung'
+      path: '/anmeldung'
+      fullPath: '/anmeldung'
+      preLoaderRoute: typeof AnmeldungRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/buchen': {
@@ -312,11 +345,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WillkommenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/zahlung': {
+      id: '/zahlung'
+      path: '/zahlung'
+      fullPath: '/zahlung'
+      preLoaderRoute: typeof ZahlungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnmeldungRoute: AnmeldungRoute,
   BuchenRoute: BuchenRoute,
   BuchungenRoute: BuchungenRoute,
   FamilyRoute: FamilyRoute,
@@ -330,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfilRoute: ProfilRoute,
   RegistrierenRoute: RegistrierenRoute,
   WillkommenRoute: WillkommenRoute,
+  ZahlungRoute: ZahlungRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

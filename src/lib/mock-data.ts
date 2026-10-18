@@ -82,3 +82,12 @@ export const mockPlans = [
     features: ["Unlimitierte Trainings pro Woche", "Volle Geräteausstattung", "Flexible Buchung 24/7", "Maximale Trainingsfrequenz"],
   },
 ] as const;
+
+/** Optional one-off services offered during sign-up. */
+export const mockAddons = [
+  { id: "bia-1", label: "Segmental Körperanalyse – 1x Messung", price: 59, note: null },
+  { id: "bia-5", label: "Segmental Körperanalyse – 5x Messung", price: 145, note: "29,00€/Messung" },
+  { id: "plan", label: "Trainingsplan inkl. Ernährungsempfehlung", price: 79, note: null },
+] as const;
+
+export const mockGoals = ["Muskelaufbau", "Nachhaltiges Abnehmen", "Fitness steigern", "Rehabilitation", "Beweglichkeit verbessern"] as const;

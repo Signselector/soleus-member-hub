@@ -24,18 +24,20 @@ export function Button({
 
 export function ButtonLink({
   to,
+  search,
   variant = "primary",
   className,
   children,
 }: {
   to: string;
+  search?: Record<string, string>;
   variant?: V;
   className?: string;
   children: ReactNode;
 }) {
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <Link to={to as any} className={cn(btnBase, variants[variant], className)}>
+    <Link to={to as any} search={search as any} className={cn(btnBase, variants[variant], className)}>
       {children}
     </Link>
   );
