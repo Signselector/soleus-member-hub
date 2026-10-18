@@ -45,20 +45,20 @@ function Home() {
             <p className="mt-6 text-sm uppercase tracking-[0.2em]">{mockNextSession.location}</p>
             <ButtonLink to="/buchungen" className="mt-10 w-full sm:w-auto">Session ansehen</ButtonLink>
           </div>
-          <div className="flex flex-col justify-between bg-sand p-8 md:p-10">
+          <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 text-primary-foreground md:p-10">
             <div className="flex items-center justify-between">
-              <Eyebrow>Zutritt</Eyebrow>
-              <KeyRound className="h-4 w-4 text-muted-foreground" strokeWidth={1.25} />
+              <Eyebrow className="text-primary-foreground/75">Zutritt</Eyebrow>
+              <KeyRound className="h-4 w-4 text-primary-foreground/75" strokeWidth={1.25} />
             </div>
             {access === "active" ? (
               <div className="mt-10">
                 <p className="text-4xl font-light tracking-[0.15em] tabular-nums md:text-5xl">{mockNextSession.accessCode}</p>
-                <p className="mt-4 text-sm text-muted-foreground">Dein Zutrittscode ist aktiv. Gib ihn am Eingang ein.</p>
+                <p className="mt-4 text-sm text-primary-foreground/80">Dein Zutrittscode ist aktiv. Gib ihn am Eingang ein.</p>
               </div>
             ) : (
               <div className="mt-10">
-                <p className="text-4xl font-light tracking-[0.15em] text-muted-foreground/50">— — — — — —</p>
-                <p className="mt-4 text-sm text-muted-foreground">
+                <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — — — —</p>
+                <p className="mt-4 text-sm text-primary-foreground/80">
                   Zutrittscode ab {mockNextSession.accessAvailableFrom} verfügbar.
                 </p>
               </div>

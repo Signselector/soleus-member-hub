@@ -15,19 +15,19 @@ export function AuthLayout({
 }) {
   return (
     <div className="grid min-h-screen bg-background md:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-sand p-14 md:flex">
-        <Wordmark />
+      <aside className="hidden flex-col justify-between bg-primary p-14 text-primary-foreground md:flex">
+        <Wordmark light />
         <div>
-          <p className="max-w-sm text-4xl leading-[1.15] font-light tracking-tight text-foreground lg:text-5xl">
+          <p className="max-w-sm text-4xl leading-[1.15] font-light tracking-tight lg:text-5xl">
             Dein Raum.
             <br />
             Deine Zeit.
             <br />
             Dein Training.
           </p>
-          <p className="mt-8 eyebrow">Private Gym · Österreich</p>
+          <p className="eyebrow mt-8 text-primary-foreground/75">Private Gym · Österreich</p>
         </div>
-        <p className="eyebrow">© SOLEUS</p>
+        <p className="eyebrow text-primary-foreground/75">© SOLEUS</p>
       </aside>
 
       <section className="flex flex-col px-6 py-8 md:px-16 md:py-14">

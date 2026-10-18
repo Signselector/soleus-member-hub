@@ -3,12 +3,13 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react
 import { cn } from "@/lib/utils";
 
 const btnBase =
-  "inline-flex min-h-12 items-center justify-center gap-3 px-8 text-[0.6875rem] font-medium uppercase tracking-[0.2em] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40";
+  "inline-flex min-h-12 items-center justify-center gap-3 rounded-full px-8 text-[0.6875rem] font-medium uppercase tracking-[0.18em] transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40";
 
 const variants = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/85",
-  outline: "border border-foreground/80 text-foreground hover:bg-foreground hover:text-background",
-  ghost: "text-foreground underline-offset-8 hover:underline px-0",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+  sand: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+  outline: "border border-foreground/15 text-foreground hover:bg-secondary",
+  ghost: "rounded-none text-foreground underline-offset-8 hover:underline px-0",
 };
 
 type V = keyof typeof variants;
@@ -65,10 +66,26 @@ export function Rule({ className }: { className?: string }) {
   return <hr className={cn("border-0 border-t border-border", className)} />;
 }
 
-export function Wordmark({ className }: { className?: string }) {
+/** Real soleus.at logo. `light` renders the white version for dark (espresso) surfaces. */
+export function Wordmark({ className, light }: { className?: string; light?: boolean }) {
+  if (light) {
+    return <img src="/img/soleus-logo.png" alt="SOLEUS" className={cn("h-6 w-auto self-start object-contain object-left md:h-7", className)} />;
+  }
   return (
-    <span className={cn("text-sm font-medium uppercase tracking-[0.35em] text-foreground", className)}>
-      Soleus
-    </span>
+    <span
+      role="img"
+      aria-label="SOLEUS"
+      className={cn("block h-6 w-[7.5rem] bg-foreground md:h-7 md:w-[8.75rem]", className)}
+      style={{
+        WebkitMaskImage: "url(/img/soleus-logo.png)",
+        maskImage: "url(/img/soleus-logo.png)",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "left center",
+        maskPosition: "left center",
+      }}
+    />
   );
 }

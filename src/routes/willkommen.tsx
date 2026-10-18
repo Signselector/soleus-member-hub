@@ -40,12 +40,12 @@ function Welcome() {
             Wie möchtest du SOLEUS kennenlernen?
           </h1>
         </div>
-        <div className="mt-16 grid border-t border-border md:mt-24 md:grid-cols-2">
-          {options.map((o, i) => (
+        <div className="mt-16 grid gap-6 md:mt-24 md:grid-cols-2">
+          {options.map((o) => (
             <Link
               key={o.to}
               to={o.to}
-              className={`group flex flex-col justify-between gap-12 border-b border-border py-10 transition-colors hover:bg-sand md:min-h-80 md:p-10 ${i === 0 ? "md:border-r" : ""}`}
+              className={`group flex flex-col justify-between gap-12 rounded-2xl border border-border bg-card p-8 transition-colors duration-500 hover:bg-secondary md:min-h-80 md:p-10`}
             >
               <span className="eyebrow">{o.no}</span>
               <div>
