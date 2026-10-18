@@ -15,9 +15,20 @@ export function AuthLayout({
 }) {
   return (
     <div className="grid min-h-screen bg-background md:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-primary p-14 text-primary-foreground md:flex">
-        <Wordmark light />
-        <div>
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-primary p-14 text-primary-foreground md:flex">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/video/atmosphere.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute inset-0 bg-primary/55" aria-hidden />
+        <Wordmark light className="relative" />
+        <div className="relative">
           <p className="max-w-sm text-4xl leading-[1.15] font-light tracking-tight lg:text-5xl">
             Dein Raum.
             <br />
@@ -27,7 +38,7 @@ export function AuthLayout({
           </p>
           <p className="eyebrow mt-8 text-primary-foreground/75">Private Gym · Österreich</p>
         </div>
-        <p className="eyebrow text-primary-foreground/75">© SOLEUS</p>
+        <p className="eyebrow relative text-primary-foreground/75">© SOLEUS</p>
       </aside>
 
       <section className="flex flex-col px-6 py-8 md:px-16 md:py-14">
