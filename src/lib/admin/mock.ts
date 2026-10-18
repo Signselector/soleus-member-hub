@@ -46,7 +46,10 @@ export type AdminCustomer = {
   gc: { customerId: string | null; mandateId: string | null; subscriptionId: string | null; mandate: MandateStatus; payment: "paid" | "pending" | "failed" | "none" };
 };
 
+export type HourKind = "Buchung" | "Anpassung" | "Verlängerung" | "Gutschrift";
+
 export type HourChange = {
+  kind: HourKind;
   id: string;
   customerId: string;
   from: number;
@@ -111,10 +114,10 @@ export const SEED_HOUR_CHANGES = (today: Date): HourChange[] => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${hh}`;
   };
   return [
-    { id: "h1", customerId: "c1", from: 17, to: 16, reason: "Private Gym Buchung", at: iso(-1, "18:00"), actor: "System" },
-    { id: "h2", customerId: "c2", from: 8, to: 7, reason: "Premium Training", at: iso(-2, "17:00"), actor: "System" },
-    { id: "h3", customerId: "c7", from: 4, to: 3, reason: "Überziehung", at: iso(-1, "19:00"), actor: "System" },
-    { id: "h4", customerId: "c3", from: 10, to: 11, reason: "Gutschrift Wartezeit", at: iso(-3, "09:30"), actor: "office@soleus.at" },
+    { id: "h1", customerId: "c1", from: 17, to: 16, reason: "Private Gym Buchung", kind: "Buchung", at: iso(-1, "18:00"), actor: "System" },
+    { id: "h2", customerId: "c2", from: 8, to: 7, reason: "Premium Training", kind: "Buchung", at: iso(-2, "17:00"), actor: "System" },
+    { id: "h3", customerId: "c7", from: 4, to: 3, reason: "Überziehung", kind: "Anpassung", at: iso(-1, "19:00"), actor: "System" },
+    { id: "h4", customerId: "c3", from: 10, to: 11, reason: "Gutschrift Wartezeit", kind: "Gutschrift", at: iso(-3, "09:30"), actor: "office@soleus.at" },
   ];
 };
 

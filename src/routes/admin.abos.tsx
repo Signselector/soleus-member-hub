@@ -1,5 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { MandateChip, PageHeader, Section, Chip } from "@/components/admin/ui";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { AccountChip, MandateChip, PageHeader, PaymentChip, Section, selectCls } from "@/components/admin/ui";
 import { fmtEur, fullName } from "@/lib/admin/format";
 import { PLAN_INFO, type PlanId } from "@/lib/admin/mock";
 import { useAdminStore } from "@/lib/admin/store";
@@ -13,9 +15,11 @@ const PLAN_ORDER: PlanId[] = ["standard", "plus", "premium", "unlimited"];
 
 function Plans() {
   const { customers } = useAdminStore();
+  const [pay, setPay] = useState<"" | "paid" | "pending" | "failed" | "none">("");
+  const subs = customers.filter((c) => !pay || c.gc.payment === pay);
   return (
     <div className="space-y-12">
-      <PageHeader eyebrow="Management" title="Abos" intro="Standard, Plus, Premium und Unlimited mit Preis, Kontingent und Kunden." />
+      <PageHeader eyebrow="Management" title="Abos" intro="Übersicht aller Abonnements mit Coaching-Blöcken und Zahlungsstatus." />
 
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((id) => {
@@ -38,32 +42,36 @@ function Plans() {
         })}
       </div>
 
-      <Section title="Kunden pro Abo">
-        <div className="space-y-10">
-          {PLAN_ORDER.map((id) => {
-            const list = customers.filter((c) => c.plan === id);
-            return (
-              <div key={id}>
-                <p className="text-sm font-medium">{PLAN_INFO[id].name} <span className="font-normal text-muted-foreground">· {list.length}</span></p>
-                {list.length === 0 ? (
-                  <p className="mt-3 text-sm text-muted-foreground">Keine Kunden.</p>
-                ) : (
-                  <ul className="mt-3 divide-y divide-border border-y border-border">
-                    {list.map((c) => (
-                      <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3.5 text-sm">
-                        <Link to="/admin/kunden/$id" params={{ id: c.id }} className="underline-offset-4 hover:underline">{fullName(c)}</Link>
-                        <div className="flex items-center gap-3">
-                          {c.status !== "active" && <Chip t="muted">{c.status === "paused" ? "Pausiert" : c.status === "pending" ? "Offen" : "Gekündigt"}</Chip>}
-                          <MandateChip status={c.gc.mandate} />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
-        </div>
+      <Section
+        title="Abonnements"
+        aside={
+          <select className={cn(selectCls, "h-9 w-48")} value={pay} onChange={(e) => setPay(e.target.value as typeof pay)} aria-label="Zahlungsstatus">
+            <option value="">Alle Zahlungsstatus</option>
+            <option value="paid">Bezahlt</option>
+            <option value="pending">Ausstehend</option>
+            <option value="failed">Fehlgeschlagen</option>
+            <option value="none">Kein Mandat</option>
+          </select>
+        }
+      >
+        {subs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Keine Abonnements für diese Auswahl.</p>
+        ) : (
+          <ul className="divide-y divide-border border-y border-border">
+            {subs.map((c) => (
+              <li key={c.id} className="grid gap-3 py-5 md:grid-cols-[1.4fr_1fr_1.6fr_1fr_1fr] md:items-center">
+                <Link to="/admin/kunden/$id" params={{ id: c.id }} className="text-sm font-medium underline-offset-4 hover:underline">{fullName(c)}</Link>
+                <p className="text-sm">{PLAN_INFO[c.plan].name}</p>
+                <div>
+                  <p className="text-xs tabular-nums text-muted-foreground">Coaching-Block · {c.hours} / {c.hoursTotal} h</p>
+                  <div className="mt-2 h-px w-full bg-border"><div className="h-px bg-foreground" style={{ width: `${c.hoursTotal ? Math.min(100, (c.hours / c.hoursTotal) * 100) : 0}%` }} /></div>
+                </div>
+                <div><PaymentChip status={c.gc.payment} /></div>
+                <div className="flex flex-wrap gap-2"><AccountChip status={c.status} /><MandateChip status={c.gc.mandate} /></div>
+              </li>
+            ))}
+          </ul>
+        )}
       </Section>
 
       <Section title="Aktionen">

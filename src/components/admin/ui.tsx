@@ -51,6 +51,10 @@ const mandateLabel: Record<MandateStatus, string> = { active: "Mandat aktiv", pe
 const mandateTone: Record<MandateStatus, keyof typeof tone> = { active: "soft", pending: "muted", failed: "alert", none: "line" };
 export const MandateChip = ({ status }: { status: MandateStatus }) => <Chip t={mandateTone[status]}>{mandateLabel[status]}</Chip>;
 
+const payLabel = { paid: "Bezahlt", pending: "Ausstehend", failed: "Fehlgeschlagen", none: "Kein Mandat" } as const;
+const payTone: Record<keyof typeof payLabel, keyof typeof tone> = { paid: "soft", pending: "muted", failed: "alert", none: "line" };
+export const PaymentChip = ({ status }: { status: keyof typeof payLabel }) => <Chip t={payTone[status]}>{payLabel[status]}</Chip>;
+
 /** Hairline-separated section with an eyebrow title. */
 export function Section({ title, aside, children, className }: { title: string; aside?: ReactNode; children: ReactNode; className?: string }) {
   return (

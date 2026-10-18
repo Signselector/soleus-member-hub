@@ -4,14 +4,15 @@ import { LogOut, Menu } from "lucide-react";
 import { Wordmark } from "@/components/ui-soleus/primitives";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthState } from "@/lib/auth-state";
+import { useAdminStore } from "@/lib/admin/store";
 import { ADMIN_GROUPS, ADMIN_MODULES, adminPath } from "@/lib/admin/modules";
 import { fmtDateLong } from "@/lib/admin/format";
 import { cn } from "@/lib/utils";
 
-/** Mock count of open hour requests (shown as a small badge). */
-const BADGES: Record<string, number> = { "stunden-anfragen": 1 };
 
 function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const { requests } = useAdminStore();
+  const BADGES: Record<string, number> = { "stunden-anfragen": requests.filter((r) => r.status === "pending").length };
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav aria-label="Admin" className="space-y-7">

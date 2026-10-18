@@ -2,20 +2,23 @@
 
 Status: erste Iteration (UI + Struktur auf Mock-Daten). Das alte Adminportal war nicht analysierbar (kein Zugriff auf Code, API oder Datenbank), alle Zahlen und Strukturen stammen aus Screenshots bzw. sind Mock.
 
-## Umgesetzt
-- Navigation: alle 16 bestehenden Module + 4 geplante (Zutritt, Probleme, Family & Friends, Gebühren & Gutschriften). Quelle: `src/lib/admin/modules.ts`.
-- Dashboard, Buchungen (Filter, anlegen, ändern, stornieren, Status korrigieren), Kundenübersicht, Kundendetail (7 Bereiche), Abos, Stundenblock History.
-- Alle weiteren Module: Platzhalterseite mit Migrationshinweis.
+## Umgesetzt (Mock-Daten, Verhalten nach der Beschreibung des alten Portals)
+- Buchungen, Kunden (+ Buchungshistorie), Abos (Coaching-Blöcke + Zahlungsstatus), Zusatzleistungen (Jahresfilter), Trainer (anlegen, bearbeiten, deaktivieren).
+- Zeitplan (wöchentliche Verfügbarkeit, gesperrte Tage), Zeitplan V2 (Private Gym + Coach-Option; V1-Zeiten schreibgeschützt), Stunden Anfragen (freigeben/ablehnen → Verlängerung in der History), Stundenblock History.
+- Trainings Tagebuch, Admin Verwaltung (Rollen: Super-Admin, Admin, Support, Trainer), Backups (35 Tage, manuell auslösbar), Landingpage Embed (Code = iframe der öffentlichen Buchungsseite wie auf soleus.at), Aktivitätsprotokoll (letzte 3 Monate, alle Aktionen im Admin werden protokolliert).
+- Support View: bewusst noch nicht umgesetzt.
+- Navigation enthält zusätzlich vorgesehene Module (Zutritt, Probleme, Family & Friends, Gebühren & Gutschriften).
 - Rolle `admin` (Mock, `auth-state.tsx`); `/admin` ist per `AdminGate` geschützt.
 
 ## NICHT umgesetzt / bewusst offen
-- **Echte Autorisierung:** `AdminGate` ist nur Oberfläche. Es gibt noch kein Backend. Vor Livebetrieb: Rolle serverseitig prüfen (jede Admin-API, z. B. RLS / Server-Functions mit `role = 'admin'`), keine Admin-Daten an Nicht-Admins ausliefern.
-- Activity Log, echte Daten, Backups, Embed, Zeitplan(V2), Stunden Anfragen, Trainer, Zusatzleistungen, Trainings Tagebuch, Support View, Admin Verwaltung.
+- **Echte Autorisierung:** `AdminGate` ist nur Oberfläche. Es gibt noch kein Backend. Vor Livebetrieb: Rolle serverseitig prüfen (jede Admin-API, z. B. RLS / Server-Functions mit `role = 'admin'`/`super_admin`), keine Admin-Daten an Nicht-Admins ausliefern.
+- Alle Daten sind Mock (`src/lib/admin/mock*.ts`), nichts wird gespeichert. Backups und Zeitpläne sind nur Oberfläche.
+- Annahme Zeitplan V2: "V1-Termine readonly" = Zeiten, die im V1-Zeitplan verfügbar sind, erscheinen in V2 gesperrt.
 
 ## Vor dem Rebuild eines Moduls zu klären (aus altem System)
 | Modul | Frage |
 |---|---|
-| Zeitplan / V2 | Unterschied? Ist V2 vollständiger Nachfolger? Beide bleiben bis dahin. |
+| Zeitplan / V2 | Stimmt die Annahme zu "V1-Termine readonly"? Ist V2 vollständiger Nachfolger? Beide bleiben bis dahin. |
 | Stunden Anfragen | Businessregeln der Freigabe (pending/approved/rejected), Auswirkungen auf Kontingent. |
 | Zusatzleistungen | Tabellen/Felder, Zuordnung Kunde ↔ Buchung. |
 | Landingpage Embed | Was genau wird ausgeliefert/eingebettet? |
