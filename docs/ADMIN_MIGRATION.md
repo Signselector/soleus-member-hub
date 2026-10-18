@@ -32,3 +32,10 @@ old system → Export / Mapping → neue DB bzw. bestehendes Backend → Validie
 Kritisch, nichts darf verloren gehen: Kunden, Auth-Accounts, Abos, Stundenkontingente (inkl. History), Buchungen, **GoCardless Customer-/Mandate-/Subscription-IDs** (Mandate nie neu erstellen oder löschen), Trainer, Zeitplan, Logs.
 
 Validierung je Entität: Zeilenanzahl alt = neu, Stichproben je Kunde (Abo, Stunden, GoCardless-IDs), Summenvergleich Stunden, keine verwaisten Buchungen.
+
+## Feldzuordnung aus den Screenshots des alten Portals (Mock, Annahmen)
+- **Kunden:** Coaching = Paketname + Gültigkeit, Einheiten = Rest/Gesamt des Coaching-Blocks (`hours/hoursTotal`), Private Gym = Einheiten + Gültigkeit, Abo = Typ + Laufzeit in Monaten (+ Family), Gesamte Buchungen, Formular (Anmeldedaten), V2-Flag. Aktionen: `+ Block`, `+ PG`, ansehen, löschen.
+- **Abos:** Coaching-Block (Rest/Gesamt), Zahlungen (Betrag + Ausgezahlt/Offen), aktiv seit, Preis/Monat (Abo + 15 € Family), SEPA-Mandat und Subscription (aus den GoCardless-IDs), Aktion „Abbuchung verschieben".
+- **Zusatzleistungen:** Status Ausstehend → Genehmigt → Erledigt oder Abgelehnt; Umsatz = Genehmigt + Erledigt; Quelle (Abo/Einzel); Beleg noch ohne Funktion.
+- **Trainer:** werden über Admin Verwaltung (Rolle Trainer) angelegt, nicht auf der Trainer-Seite. Monatsauswertung (Std/Termine), Verlauf, CSV-Report.
+- **Buchungen:** Typ mit Position im Block, z. B. "Private Gym (1/1)"; Löschen mit Bestätigung. Offen: Bedeutung der kleinen Zahl vor dem Kundennamen.

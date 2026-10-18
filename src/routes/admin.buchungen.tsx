@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 import { BookingChip, PageHeader, inputCls, selectCls } from "@/components/admin/ui";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { dayKey, fmtDayShort, fmtRange, fullName, parseLocal, toLocalIso } from "@/lib/admin/format";
+import { dayKey, fmtDateLong, fmtDayShort, fmtRange, fmtTime, fullName, parseLocal, toLocalIso } from "@/lib/admin/format";
 import { STATUS_LABEL, TYPE_LABEL, type AdminBooking, type BookingStatus, type TrainingType } from "@/lib/admin/mock";
 import { useAdminStore } from "@/lib/admin/store";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,8 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 function Bookings() {
-  const { bookings, customers } = useAdminStore();
+  const { bookings, customers, deleteBooking } = useAdminStore();
+  const [del, setDel] = useState<AdminBooking | null>(null);
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
   const [tab, setTab] = useState<Tab>("all");
@@ -52,7 +53,7 @@ function Bookings() {
         if (status && b.status !== status) return false;
         if (type && b.type !== type) return false;
         if (date && k !== date) return false;
-        if (q && !name(b.customerId).toLowerCase().includes(q.toLowerCase())) return false;
+        if (q && !`${name(b.customerId)} ${fmtDayShort(b.start)} ${dayKey(d)} ${fmtTime(b.start)}`.toLowerCase().includes(q.toLowerCase())) return false;
         return true;
       })
       .sort((a, b) => (tab === "past" || tab === "all" ? b.start.localeCompare(a.start) : a.start.localeCompare(b.start)));
@@ -63,8 +64,8 @@ function Bookings() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="Management"
-        title="Buchungen"
-        intro="Alle Buchungen suchen, filtern, anlegen und korrigieren."
+        title="Alle Buchungen"
+        intro="Alle Kundenbuchungen anzeigen und verwalten."
         actions={
           <button
             type="button"
@@ -96,7 +97,7 @@ function Bookings() {
       <div className="grid gap-3 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <label className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-          <input className={cn(inputCls, "pl-11")} placeholder="Kunde suchen" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Kunde suchen" />
+          <input className={cn(inputCls, "pl-11")} placeholder="Nach Name, Datum oder Zeit suchen" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buchungen suchen" />
         </label>
         <input type="date" className={inputCls} value={date} onChange={(e) => setDate(e.target.value)} aria-label="Datum" />
         <select className={selectCls} value={type} onChange={(e) => setType(e.target.value as TrainingType | "")} aria-label="Trainingsart">
@@ -132,10 +133,13 @@ function Bookings() {
                     <td className="px-6 py-4 tabular-nums">{fmtDayShort(b.start)}</td>
                     <td className="px-6 py-4 tabular-nums">{fmtRange(b.start, b.durationMin)}</td>
                     <td className="px-6 py-4 font-medium">{name(b.customerId)}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{TYPE_LABEL[b.type]}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{TYPE_LABEL[b.type]} <span className="tabular-nums">({b.session[0]}/{b.session[1]})</span></td>
                     <td className="px-6 py-4"><BookingChip status={b.status} /></td>
                     <td className="px-6 py-4 text-right">
-                      <button type="button" onClick={() => setDialog({ booking: b })} className="eyebrow transition-colors hover:text-foreground">Öffnen</button>
+                      <span className="inline-flex items-center gap-5">
+                        <button type="button" onClick={() => setDialog({ booking: b })} className="eyebrow transition-colors hover:text-foreground">Öffnen</button>
+                        <button type="button" onClick={() => setDel(b)} aria-label="Buchung löschen" className="text-muted-foreground transition-colors hover:text-destructive"><Trash2 className="h-4 w-4" strokeWidth={1.5} /></button>
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -150,7 +154,7 @@ function Bookings() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-medium">{name(b.customerId)}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{TYPE_LABEL[b.type]}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{TYPE_LABEL[b.type]} ({b.session[0]}/{b.session[1]})</p>
                     </div>
                     <BookingChip status={b.status} />
                   </div>
@@ -161,6 +165,20 @@ function Bookings() {
           </ul>
         </>
       )}
+
+      <p className="text-xs tabular-nums text-muted-foreground">{rows.length} Buchungen</p>
+      <Dialog open={!!del} onOpenChange={(o) => !o && setDel(null)}>
+        <DialogContent className="max-w-md gap-0 rounded-2xl border-0 bg-[#f7f5f1] p-6 md:p-8">
+          <DialogTitle className="text-2xl font-light tracking-tight">Buchung löschen?</DialogTitle>
+          <DialogDescription className="mt-2 text-sm text-muted-foreground">
+            {del && `${name(del.customerId)} · ${fmtDateLong(parseLocal(del.start))}, ${fmtTime(del.start)} Uhr. Das Löschen kann nicht rückgängig gemacht werden. Zum Korrigieren besser stornieren.`}
+          </DialogDescription>
+          <div className="mt-6 flex justify-end gap-3">
+            <button type="button" onClick={() => setDel(null)} className="h-11 rounded-full border border-foreground/15 px-6 text-[0.6875rem] font-medium uppercase tracking-[0.18em] hover:bg-secondary">Abbrechen</button>
+            <button type="button" onClick={() => { if (del) deleteBooking(del.id); setDel(null); }} className="h-11 rounded-full bg-destructive px-6 text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-destructive-foreground">Löschen</button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {dialog && <BookingDialog booking={dialog.booking} onClose={() => setDialog(null)} />}
     </div>

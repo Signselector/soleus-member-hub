@@ -24,12 +24,20 @@ export type AdminBooking = {
   durationMin: number;
   type: TrainingType;
   status: BookingStatus;
+  /** Position in a coaching block, e.g. [1, 1] → "(1/1)". */
+  session: [number, number];
+  /** Assigned trainer (admin user id), for Premium trainings. */
+  trainerId?: string;
   note?: string;
 };
 
 export type PlanId = "standard" | "plus" | "premium" | "unlimited";
 export type AccountStatus = "active" | "paused" | "cancelled" | "pending";
 export type MandateStatus = "active" | "pending" | "failed" | "none";
+
+/** Coaching package label and validity. Remaining units live in AdminCustomer.hours / hoursTotal. */
+export type CoachingBlock = { label: string; validUntil: string | null };
+export type CustomerForm = { street: string; zip: string; city: string; state: string; birthDate: string; healthIssues: string; medication: string; goals: string[] };
 
 export type AdminCustomer = {
   id: string;
@@ -38,11 +46,21 @@ export type AdminCustomer = {
   email: string;
   phone: string;
   plan: PlanId;
+  /** Contract duration in months. */
+  planMonths: number;
+  family: boolean;
   status: AccountStatus;
   hours: number;
   hoursTotal: number;
   since: string;
   startDate: string;
+  block: CoachingBlock | null;
+  blockPayment: { amount: number; status: "Ausgezahlt" | "Offen" } | null;
+  pg: { units: number; total: number; validUntil: string | null } | null;
+  v2: boolean;
+  /** Next SEPA debit date (ISO date). */
+  nextDebit: string | null;
+  form: CustomerForm;
   gc: { customerId: string | null; mandateId: string | null; subscriptionId: string | null; mandate: MandateStatus; payment: "paid" | "pending" | "failed" | "none" };
 };
 
@@ -71,15 +89,19 @@ const gc = (n: number, m: MandateStatus = "active", pay: AdminCustomer["gc"]["pa
     ? { customerId: null, mandateId: null, subscriptionId: null, mandate: "none", payment: "none" }
     : { customerId: `CU000${n}A1B2`, mandateId: `MD000${n}C3D4`, subscriptionId: `SB000${n}E5F6`, mandate: m, payment: pay };
 
+const form = (street: string, zip: string, city: string, state: string, goals: string[] = ["Fitness steigern"]): CustomerForm => ({
+  street, zip, city, state, birthDate: "1990-05-14", healthIssues: "Keine", medication: "Keine", goals,
+});
+
 export const SEED_CUSTOMERS: AdminCustomer[] = [
-  { id: "c1", firstName: "Max", lastName: "Mustermann", email: "max.mustermann@example.at", phone: "+43 660 123 45 67", plan: "standard", status: "active", hours: 16, hoursTotal: 20, since: "2025-03-01", startDate: "2025-03-01", gc: gc(1) },
-  { id: "c2", firstName: "Laura", lastName: "Huber", email: "laura.huber@example.at", phone: "+43 664 555 11 22", plan: "plus", status: "active", hours: 7, hoursTotal: 8, since: "2025-06-12", startDate: "2025-06-12", gc: gc(2) },
-  { id: "c3", firstName: "Thomas", lastName: "Gruber", email: "t.gruber@example.at", phone: "+43 676 888 99 00", plan: "premium", status: "active", hours: 11, hoursTotal: 12, since: "2024-11-03", startDate: "2024-11-03", gc: gc(3) },
-  { id: "c4", firstName: "Sabine", lastName: "Wieser", email: "sabine.wieser@example.at", phone: "+43 650 212 34 56", plan: "unlimited", status: "active", hours: 18, hoursTotal: 20, since: "2025-09-20", startDate: "2025-09-20", gc: gc(4) },
-  { id: "c5", firstName: "Daniel", lastName: "Egger", email: "daniel.egger@example.at", phone: "+43 699 440 77 18", plan: "standard", status: "paused", hours: 4, hoursTotal: 4, since: "2025-01-15", startDate: "2025-01-15", gc: gc(5, "active", "pending") },
-  { id: "c6", firstName: "Julia", lastName: "Pichler", email: "julia.pichler@example.at", phone: "+43 660 909 12 34", plan: "plus", status: "pending", hours: 0, hoursTotal: 8, since: "2026-10-17", startDate: "2026-10-17", gc: gc(6, "pending", "none") },
-  { id: "c7", firstName: "Markus", lastName: "Kofler", email: "markus.kofler@example.at", phone: "+43 664 321 65 40", plan: "premium", status: "active", hours: 3, hoursTotal: 12, since: "2024-08-09", startDate: "2024-08-09", gc: gc(7, "failed", "failed") },
-  { id: "c8", firstName: "Eva", lastName: "Moser", email: "eva.moser@example.at", phone: "+43 650 777 01 02", plan: "standard", status: "cancelled", hours: 0, hoursTotal: 4, since: "2024-05-30", startDate: "2024-05-30", gc: gc(8, "none") },
+  { id: "c1", firstName: "Max", lastName: "Mustermann", email: "max.mustermann@example.at", phone: "+43 660 123 45 67", plan: "standard", planMonths: 12, family: false, status: "active", hours: 16, hoursTotal: 60, since: "2025-03-01", startDate: "2025-03-01", block: { label: "PT 1:1 Einzel", validUntil: "2027-03-01" }, blockPayment: { amount: 550, status: "Ausgezahlt" }, pg: { units: 6, total: 10, validUntil: "2027-01-31" }, v2: true, nextDebit: "2026-11-01", form: form("Magazingasse 11E", "9020", "Klagenfurt", "Kärnten", ["Muskelaufbau", "Fitness steigern"]), gc: gc(1) },
+  { id: "c2", firstName: "Laura", lastName: "Huber", email: "laura.huber@example.at", phone: "+43 664 555 11 22", plan: "plus", planMonths: 12, family: true, status: "active", hours: 7, hoursTotal: 8, since: "2025-06-12", startDate: "2025-06-12", block: null, blockPayment: null, pg: null, v2: true, nextDebit: "2026-11-12", form: form("Bahnhofstraße 4", "9500", "Villach", "Kärnten", ["Nachhaltiges Abnehmen"]), gc: gc(2) },
+  { id: "c3", firstName: "Thomas", lastName: "Gruber", email: "t.gruber@example.at", phone: "+43 676 888 99 00", plan: "premium", planMonths: 12, family: false, status: "active", hours: 11, hoursTotal: 12, since: "2024-11-03", startDate: "2024-11-03", block: { label: "PT 1:1 Einzel", validUntil: "2026-12-31" }, blockPayment: { amount: 145, status: "Ausgezahlt" }, pg: null, v2: true, nextDebit: "2026-11-03", form: form("Hauptplatz 9", "9020", "Klagenfurt", "Kärnten", ["Muskelaufbau"]), gc: gc(3) },
+  { id: "c4", firstName: "Sabine", lastName: "Wieser", email: "sabine.wieser@example.at", phone: "+43 650 212 34 56", plan: "unlimited", planMonths: 12, family: true, status: "active", hours: 18, hoursTotal: 20, since: "2025-09-20", startDate: "2025-09-20", block: null, blockPayment: null, pg: { units: 2, total: 5, validUntil: "2026-12-15" }, v2: true, nextDebit: "2026-11-20", form: form("Seeweg 2", "9220", "Velden", "Kärnten"), gc: gc(4) },
+  { id: "c5", firstName: "Daniel", lastName: "Egger", email: "daniel.egger@example.at", phone: "+43 699 440 77 18", plan: "standard", planMonths: 6, family: false, status: "paused", hours: 4, hoursTotal: 4, since: "2025-01-15", startDate: "2025-01-15", block: null, blockPayment: null, pg: null, v2: false, nextDebit: null, form: form("Ringstraße 7", "8010", "Graz", "Steiermark"), gc: gc(5, "active", "pending") },
+  { id: "c6", firstName: "Julia", lastName: "Pichler", email: "julia.pichler@example.at", phone: "+43 660 909 12 34", plan: "plus", planMonths: 12, family: false, status: "pending", hours: 0, hoursTotal: 0, since: "2026-10-17", startDate: "2026-10-17", block: null, blockPayment: null, pg: null, v2: true, nextDebit: null, form: form("Lindengasse 3", "9020", "Klagenfurt", "Kärnten"), gc: gc(6, "pending", "none") },
+  { id: "c7", firstName: "Markus", lastName: "Kofler", email: "markus.kofler@example.at", phone: "+43 664 321 65 40", plan: "premium", planMonths: 12, family: false, status: "active", hours: 3, hoursTotal: 12, since: "2024-08-09", startDate: "2024-08-09", block: null, blockPayment: { amount: 79, status: "Offen" }, pg: null, v2: true, nextDebit: "2026-10-25", form: form("Waldweg 15", "9061", "Wölfnitz", "Kärnten"), gc: gc(7, "failed", "failed") },
+  { id: "c8", firstName: "Eva", lastName: "Moser", email: "eva.moser@example.at", phone: "+43 650 777 01 02", plan: "standard", planMonths: 12, family: false, status: "cancelled", hours: 0, hoursTotal: 0, since: "2024-05-30", startDate: "2024-05-30", block: null, blockPayment: null, pg: null, v2: false, nextDebit: null, form: form("Dorfstraße 1", "9100", "Völkermarkt", "Kärnten"), gc: gc(8, "none") },
 ];
 
 /** Bookings are generated relative to today so the demo never goes stale. */
@@ -105,7 +127,16 @@ export function seedBookings(today: Date): AdminBooking[] {
     [-4, 18, "c5", "private_gym", "cancelled"],
     [-6, 7, "c4", "private_gym", "completed"],
   ];
-  return rows.map(([d, h, c, t, s], i) => ({ id: `b${i + 1}`, customerId: c, start: at(d, h), durationMin: 60, type: t, status: s }));
+  return rows.map(([d, h, c, t, s], i) => ({
+    id: `b${i + 1}`,
+    customerId: c,
+    start: at(d, h),
+    durationMin: 60,
+    type: t,
+    status: s,
+    session: [1, 1] as [number, number],
+    ...(t === "premium" ? { trainerId: i % 2 ? "u3" : "u2" } : {}),
+  }));
 }
 
 export const SEED_HOUR_CHANGES = (today: Date): HourChange[] => {
