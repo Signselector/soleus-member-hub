@@ -15,26 +15,75 @@ export const SEED_AVAILABILITY: DayPlan[] = [
 ];
 export type BlockedDay = { id: string; date: string; reason: string };
 
-/** Zeitplan V2: per weekday + hour, Private Gym and Coach option. */
-export type V2Slot = { privateGym: boolean; coach: boolean };
-export const V2_HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] as const;
-export const SEED_V2: Record<string, V2Slot> = (() => {
+/** Zeitplan V2: Private Gym slots per date + hour, optionally with the coach option. Key: "YYYY-MM-DD|H". */
+export type V2Slot = { coach: boolean };
+export type V2Settings = { defaultCoach: boolean };
+export const v2Key = (date: string, hour: number) => `${date}|${hour}`;
+export const SEED_V2 = (today: Date): Record<string, V2Slot> => {
   const o: Record<string, V2Slot> = {};
-  for (let d = 0; d < 7; d++) for (const h of V2_HOURS) o[`${d}-${h}`] = { privateGym: false, coach: false };
-  return o;
-})();
-
-export type RequestStatus = "pending" | "approved" | "rejected";
-export type HourRequest = { id: string; customerId: string; hours: number; status: RequestStatus; at: string; note: string };
-export const SEED_REQUESTS = (today: Date): HourRequest[] => {
-  const iso = (o: number) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + o);
+  const iso = (off: number) => {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + off);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
+  for (let off = -2; off <= 5; off++) for (const h of [5, 6, 8, 12, 16]) o[v2Key(iso(off), h)] = { coach: (off + h) % 3 === 0 };
+  return o;
+};
+
+export type RequestStatus = "pending" | "approved" | "rejected";
+export type RequestKind = "coaching" | "private_gym";
+export type HourRequest = {
+  id: string;
+  customerId: string;
+  kind: RequestKind;
+  pkg: string;
+  hours: number;
+  /** Validity of the package, e.g. "5 Wochen". */
+  validity: string;
+  hasProof: boolean;
+  status: RequestStatus;
+  at: string;
+  decidedAt: string | null;
+  note: string;
+};
+export const SEED_REQUESTS = (today: Date): HourRequest[] => {
+  const iso = (o: number, hh = "12:00") => {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + o);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${hh}`;
+  };
+  const cust = ["c1", "c2", "c3", "c4", "c7"];
+  const pk = ["Premium", "Standard", "Standard+"];
+  const done: HourRequest[] = Array.from({ length: 23 }, (_, i) => {
+    const pg = i % 4 === 1;
+    return {
+      id: `r${i + 10}`,
+      customerId: cust[i % cust.length]!,
+      kind: pg ? ("private_gym" as const) : ("coaching" as const),
+      pkg: pg ? "10er-Block" : pk[i % pk.length]!,
+      hours: 10,
+      validity: pg ? "12 Wochen" : "8 Wochen",
+      hasProof: i % 6 !== 5,
+      status: "approved" as const,
+      at: iso(-3 - i * 5, "09:00"),
+      decidedAt: iso(-2 - i * 5, `${String(8 + (i % 10)).padStart(2, "0")}:${String((i * 7) % 60).padStart(2, "0")}`),
+      note: "",
+    };
+  });
+  return [{ id: "r1", customerId: "c2", kind: "coaching", pkg: "Standard", hours: 10, validity: "5 Wochen", hasProof: true, status: "pending", at: iso(-1, "20:29"), decidedAt: null, note: "" }, ...done];
+};
+
+/** Validity extension of a coaching block ("Laufzeit-Verlängerung"). */
+export type Extension = { id: string; customerId: string; at: string; weeks: number };
+export const SEED_EXTENSIONS = (today: Date): Extension[] => {
+  const iso = (o: number, hh: string) => {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + o);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${hh}`;
+  };
   return [
-    { id: "r1", customerId: "c2", hours: 10, status: "pending", at: iso(-1), note: "Würde gerne ein zusätzliches Stundenpaket buchen." },
-    { id: "r2", customerId: "c4", hours: 5, status: "approved", at: iso(-9), note: "" },
-    { id: "r3", customerId: "c5", hours: 10, status: "rejected", at: iso(-15), note: "Abo aktuell pausiert." },
+    { id: "e1", customerId: "c3", at: iso(-20, "06:52"), weeks: 1 },
+    { id: "e2", customerId: "c2", at: iso(-60, "09:35"), weeks: 1 },
+    { id: "e3", customerId: "c4", at: iso(-95, "11:21"), weeks: 2 },
+    { id: "e4", customerId: "c1", at: iso(-150, "13:35"), weeks: 1 },
+    { id: "e5", customerId: "c7", at: iso(-210, "08:23"), weeks: 1 },
   ];
 };
 

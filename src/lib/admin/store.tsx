@@ -17,6 +17,7 @@ import {
   SEED_AVAILABILITY,
   SEED_BACKUPS,
   SEED_DIARY,
+  SEED_EXTENSIONS,
   SEED_REQUESTS,
   SEED_V2,
   type Activity,
@@ -28,8 +29,10 @@ import {
   type BlockedDay,
   type DayPlan,
   type DiaryEntry,
+  type Extension,
   type HourRequest,
   type RequestStatus,
+  type V2Settings,
   type V2Slot,
 } from "./mock2";
 
@@ -49,6 +52,8 @@ type Store = {
   availability: DayPlan[];
   blocked: BlockedDay[];
   v2: Record<string, V2Slot>;
+  v2Settings: V2Settings;
+  extensions: Extension[];
   requests: HourRequest[];
   diary: DiaryEntry[];
   adminUsers: AdminUser[];
@@ -76,7 +81,12 @@ type Store = {
   setDay: (day: number, patch: Partial<DayPlan>) => void;
   addBlocked: (date: string, reason: string) => void;
   removeBlocked: (id: string) => void;
-  setV2: (key: string, patch: Partial<V2Slot>) => void;
+  addV2: (keys: string[], slot: V2Slot) => void;
+  removeV2: (keys: string[]) => void;
+  setV2Settings: (patch: Partial<V2Settings>) => void;
+  deleteBookings: (ids: string[]) => void;
+  extendBlock: (customerId: string, weeks: number) => void;
+  removeExtension: (id: string) => void;
   decideRequest: (id: string, status: Exclude<RequestStatus, "pending">) => void;
   addDiary: (e: Omit<DiaryEntry, "id">) => void;
   removeDiary: (id: string) => void;
@@ -95,7 +105,9 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
   const [hourChanges, setHourChanges] = useState<HourChange[]>(() => SEED_HOUR_CHANGES(new Date()));
   const [availability, setAvailability] = useState<DayPlan[]>(SEED_AVAILABILITY);
   const [blocked, setBlocked] = useState<BlockedDay[]>([]);
-  const [v2, setV2State] = useState<Record<string, V2Slot>>(SEED_V2);
+  const [v2, setV2State] = useState<Record<string, V2Slot>>(() => SEED_V2(new Date()));
+  const [v2Settings, setV2SettingsState] = useState<V2Settings>({ defaultCoach: false });
+  const [extensions, setExtensions] = useState<Extension[]>(() => SEED_EXTENSIONS(new Date()));
   const [requests, setRequests] = useState<HourRequest[]>(() => SEED_REQUESTS(new Date()));
   const [diary, setDiary] = useState<DiaryEntry[]>(() => SEED_DIARY(new Date()));
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>(SEED_ADMIN_USERS);
@@ -121,7 +133,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     };
 
     return {
-      customers, bookings, hourChanges, availability, blocked, v2, requests, diary, adminUsers, backups, activity, addons,
+      customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, adminUsers, backups, activity, addons,
       trainers: adminUsers.filter((u) => u.role === "trainer"),
 
       addBooking: (b) => {
@@ -196,16 +208,60 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         setBlocked((p) => p.filter((x) => x.id !== id));
         if (b) log("schedule.unblock", "Zeitplan", b.date, "Sperre entfernt");
       },
-      setV2: (key, patch) => {
-        setV2State((p) => ({ ...p, [key]: { ...p[key]!, ...patch } }));
-        log("schedule.v2", "Zeitplan V2", key, JSON.stringify(patch));
+      addV2: (keys, slot) => {
+        setV2State((p) => ({ ...p, ...Object.fromEntries(keys.map((k) => [k, slot])) }));
+        log("schedule.v2.add", "Zeitplan V2", keys[0] ?? "", `${keys.length} Slot(s)${slot.coach ? " mit Coach-Option" : ""}`);
+      },
+      removeV2: (keys) => {
+        setV2State((p) => {
+          const n = { ...p };
+          keys.forEach((k) => delete n[k]);
+          return n;
+        });
+        log("schedule.v2.remove", "Zeitplan V2", keys[0] ?? "", `${keys.length} Slot(s) gelöscht`);
+      },
+      setV2Settings: (patch) => setV2SettingsState((p) => ({ ...p, ...patch })),
+      deleteBookings: (ids) => {
+        setBookings((p) => p.filter((b) => !ids.includes(b.id)));
+        log("booking.delete", "Buchung", ids[0] ?? "", `${ids.length} Buchung(en) gelöscht`);
+      },
+      extendBlock: (customerId, weeks) => {
+        const c = customers.find((x) => x.id === customerId);
+        if (!c || !c.block || weeks <= 0) return;
+        const base = c.block.validUntil ? new Date(`${c.block.validUntil}T00:00:00`) : new Date();
+        base.setDate(base.getDate() + weeks * 7);
+        const until = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, "0")}-${String(base.getDate()).padStart(2, "0")}`;
+        setCustomers((p) => p.map((x) => (x.id === customerId && x.block ? { ...x, block: { ...x.block, validUntil: until } } : x)));
+        setExtensions((p) => [{ id: `e${Date.now()}`, customerId, at: stamp(), weeks }, ...p]);
+        log("block.extend", "Stundenblock", customerId, `+${weeks} Woche(n) → ${until}`);
+      },
+      removeExtension: (id) => {
+        const e = extensions.find((x) => x.id === id);
+        if (!e) return;
+        setExtensions((p) => p.filter((x) => x.id !== id));
+        setCustomers((p) =>
+          p.map((x) => {
+            if (x.id !== e.customerId || !x.block?.validUntil) return x;
+            const d = new Date(`${x.block.validUntil}T00:00:00`);
+            d.setDate(d.getDate() - e.weeks * 7);
+            return { ...x, block: { ...x.block, validUntil: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` } };
+          }),
+        );
+        log("block.extend.remove", "Stundenblock", e.customerId, `Verlängerung +${e.weeks} Woche(n) entfernt`);
       },
       decideRequest: (id, status) => {
         const r = requests.find((x) => x.id === id);
         if (!r || r.status !== "pending") return;
         setRequests((p) => p.map((x) => (x.id === id ? { ...x, status } : x)));
         log(`request.${status}`, "Stunden Anfrage", id, `${r.hours} h`);
-        if (status === "approved") adjust(r.customerId, r.hours, `Stundenpaket freigegeben (${r.hours} h)`, ACTOR, "Verlängerung");
+        if (status === "approved") {
+          setRequests((p) => p.map((x) => (x.id === id ? { ...x, status, decidedAt: stamp() } : x)));
+          if (r.kind === "private_gym") {
+            setCustomers((p) => p.map((x) => (x.id === r.customerId ? { ...x, pg: { units: (x.pg?.units ?? 0) + r.hours, total: (x.pg?.total ?? 0) + r.hours, validUntil: x.pg?.validUntil ?? null } } : x)));
+          } else {
+            adjust(r.customerId, r.hours, `Stundenpaket freigegeben (${r.pkg}, ${r.hours} h)`, ACTOR, "Verlängerung");
+          }
+        }
       },
       addDiary: (e) => {
         setDiary((p) => [{ ...e, id: `d${Date.now()}` }, ...p]);
@@ -235,7 +291,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         log("backup.manual", "Backups", "manual", "Manuelles Backup ausgelöst");
       },
     };
-  }, [customers, bookings, hourChanges, availability, blocked, v2, requests, diary, adminUsers, backups, activity, addons]);
+  }, [customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, adminUsers, backups, activity, addons]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

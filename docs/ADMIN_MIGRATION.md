@@ -39,3 +39,9 @@ Validierung je Entität: Zeilenanzahl alt = neu, Stichproben je Kunde (Abo, Stun
 - **Zusatzleistungen:** Status Ausstehend → Genehmigt → Erledigt oder Abgelehnt; Umsatz = Genehmigt + Erledigt; Quelle (Abo/Einzel); Beleg noch ohne Funktion.
 - **Trainer:** werden über Admin Verwaltung (Rolle Trainer) angelegt, nicht auf der Trainer-Seite. Monatsauswertung (Std/Termine), Verlauf, CSV-Report.
 - **Buchungen:** Typ mit Position im Block, z. B. "Private Gym (1/1)"; Löschen mit Bestätigung. Offen: Bedeutung der kleinen Zahl vor dem Kundennamen.
+
+## Zeitplan, Anfragen, History, Tagebuch (aus Screenshots, Annahmen)
+- **Zeitplan / Zeitplan V2:** Tabs Kalenderansicht, Buchungen, Einstellungen. Wochenkalender (05:00–21:00) mit Trainer-Filter, Mehrfach löschen, Woche vor/zurück, Heute. V1-Slots ergeben sich aus der wöchentlichen Verfügbarkeit (Einstellungen), V2-Slots werden pro Datum/Stunde angelegt (optional mit Coach-Option, wiederholbar) und V1-Zeiten erscheinen dort schreibgeschützt. Fixtermine, Cardio-Kurs, Probetraining und Körperanalyse aus der Legende des alten Portals sind noch nicht als eigene Slot-Arten umgesetzt.
+- **Stundenblock Anfragen:** Typ Coaching / Private Gym, Paket, Einheiten, Gültigkeit, Zahlungsnachweis (Datei folgt mit Backend), Freigeben/Ablehnen, "Kürzlich freigegeben" mit Paginierung. Freigabe Coaching → Einheiten + History-Eintrag, Private Gym → PG-Einheiten.
+- **Stundenblock History:** KPIs (abgelaufene Blöcke, verfallene Stunden, Verlängerungen, Einträge), Tab Laufzeit-Verlängerungen (Quartal, +n Wochen, entfernen setzt das Ablaufdatum zurück) und Tab Verlauf (Stundenänderungen).
+- **Trainings Tagebuch:** Kunde per Suche/Auswahl, erst danach Einträge.

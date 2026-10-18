@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { Search } from "lucide-react";
 import { PageHeader, Section, inputCls, selectCls } from "@/components/admin/ui";
 import { dayKey, fmtDate, fullName } from "@/lib/admin/format";
 import { useAdminStore } from "@/lib/admin/store";
@@ -12,7 +13,8 @@ export const Route = createFileRoute("/admin/trainings-tagebuch")({
 
 function Diary() {
   const { diary, customers, trainers, addDiary, removeDiary } = useAdminStore();
-  const [cid, setCid] = useState(customers[0]?.id ?? "");
+  const [cid, setCid] = useState("");
+  const [cq, setCq] = useState("");
   const [f, setF] = useState({ date: dayKey(new Date()), trainerId: trainers[0]?.id ?? "", title: "", notes: "", weight: "" });
   const entries = diary.filter((d) => d.customerId === cid).sort((a, b) => b.date.localeCompare(a.date));
   const trainer = (id: string) => trainers.find((t) => t.id === id)?.name ?? "—";
@@ -21,11 +23,23 @@ function Diary() {
   return (
     <div className="space-y-10">
       <PageHeader eyebrow="Training" title="Trainings Tagebuch" intro="Trainingsfortschritte der Kunden verwalten." />
-      <select className={cn(selectCls, "max-w-sm")} value={cid} onChange={(e) => setCid(e.target.value)} aria-label="Kunde">
-        {customers.map((c) => (
-          <option key={c.id} value={c.id}>{fullName(c)}</option>
-        ))}
-      </select>
+      <div>
+        <p className="eyebrow text-foreground">Kunde auswählen</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-[2fr_1.4fr]">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+            <input className={cn(inputCls, "pl-11")} placeholder="Kunde suchen" value={cq} onChange={(e) => setCq(e.target.value)} aria-label="Kunde suchen" />
+          </label>
+          <select className={selectCls} value={cid} onChange={(e) => setCid(e.target.value)} aria-label="Kunde">
+            <option value="">Kunde wählen</option>
+            {customers.filter((c) => !cq || `${fullName(c)} ${c.email}`.toLowerCase().includes(cq.toLowerCase())).map((c) => (
+              <option key={c.id} value={c.id}>{fullName(c)}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {!cid && <p className="rounded-2xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">Wähle einen Kunden aus, um das Trainings Tagebuch anzuzeigen.</p>}
+      {cid && (<>
 
       {weights.length > 1 && (
         <p className="text-sm text-muted-foreground">
@@ -76,6 +90,7 @@ function Diary() {
           </ul>
         )}
       </Section>
+      </>)}
     </div>
   );
 }
