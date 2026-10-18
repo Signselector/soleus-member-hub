@@ -10,8 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BuchenRouteImport } from './routes/buchen'
+import { Route as BuchungenRouteImport } from './routes/buchungen'
+import { Route as FamilyRouteImport } from './routes/family'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MitgliedWerdenRouteImport } from './routes/mitglied-werden'
+import { Route as MitgliedschaftRouteImport } from './routes/mitgliedschaft'
 import { Route as PasswortVergessenRouteImport } from './routes/passwort-vergessen'
+import { Route as ProbetrainingRouteImport } from './routes/probetraining'
+import { Route as ProblemMeldenRouteImport } from './routes/problem-melden'
+import { Route as ProfilRouteImport } from './routes/profil'
 import { Route as RegistrierenRouteImport } from './routes/registrieren'
 import { Route as WillkommenRouteImport } from './routes/willkommen'
 
@@ -20,14 +29,59 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuchenRoute = BuchenRouteImport.update({
+  id: '/buchen',
+  path: '/buchen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuchungenRoute = BuchungenRouteImport.update({
+  id: '/buchungen',
+  path: '/buchungen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyRoute = FamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MitgliedWerdenRoute = MitgliedWerdenRouteImport.update({
+  id: '/mitglied-werden',
+  path: '/mitglied-werden',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MitgliedschaftRoute = MitgliedschaftRouteImport.update({
+  id: '/mitgliedschaft',
+  path: '/mitgliedschaft',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PasswortVergessenRoute = PasswortVergessenRouteImport.update({
   id: '/passwort-vergessen',
   path: '/passwort-vergessen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProbetrainingRoute = ProbetrainingRouteImport.update({
+  id: '/probetraining',
+  path: '/probetraining',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProblemMeldenRoute = ProblemMeldenRouteImport.update({
+  id: '/problem-melden',
+  path: '/problem-melden',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilRoute = ProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistrierenRoute = RegistrierenRouteImport.update({
@@ -43,45 +97,117 @@ const WillkommenRoute = WillkommenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/buchen': typeof BuchenRoute
+  '/buchungen': typeof BuchungenRoute
+  '/family': typeof FamilyRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/mitglied-werden': typeof MitgliedWerdenRoute
+  '/mitgliedschaft': typeof MitgliedschaftRoute
   '/passwort-vergessen': typeof PasswortVergessenRoute
+  '/probetraining': typeof ProbetrainingRoute
+  '/problem-melden': typeof ProblemMeldenRoute
+  '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/buchen': typeof BuchenRoute
+  '/buchungen': typeof BuchungenRoute
+  '/family': typeof FamilyRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/mitglied-werden': typeof MitgliedWerdenRoute
+  '/mitgliedschaft': typeof MitgliedschaftRoute
   '/passwort-vergessen': typeof PasswortVergessenRoute
+  '/probetraining': typeof ProbetrainingRoute
+  '/problem-melden': typeof ProblemMeldenRoute
+  '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/buchen': typeof BuchenRoute
+  '/buchungen': typeof BuchungenRoute
+  '/family': typeof FamilyRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/mitglied-werden': typeof MitgliedWerdenRoute
+  '/mitgliedschaft': typeof MitgliedschaftRoute
   '/passwort-vergessen': typeof PasswortVergessenRoute
+  '/probetraining': typeof ProbetrainingRoute
+  '/problem-melden': typeof ProblemMeldenRoute
+  '/profil': typeof ProfilRoute
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/login' | '/passwort-vergessen' | '/registrieren' | '/willkommen'
+    | '/'
+    | '/buchen'
+    | '/buchungen'
+    | '/family'
+    | '/home'
+    | '/login'
+    | '/mitglied-werden'
+    | '/mitgliedschaft'
+    | '/passwort-vergessen'
+    | '/probetraining'
+    | '/problem-melden'
+    | '/profil'
+    | '/registrieren'
+    | '/willkommen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/passwort-vergessen' | '/registrieren' | '/willkommen'
+  to:
+    | '/'
+    | '/buchen'
+    | '/buchungen'
+    | '/family'
+    | '/home'
+    | '/login'
+    | '/mitglied-werden'
+    | '/mitgliedschaft'
+    | '/passwort-vergessen'
+    | '/probetraining'
+    | '/problem-melden'
+    | '/profil'
+    | '/registrieren'
+    | '/willkommen'
   id:
     | '__root__'
     | '/'
+    | '/buchen'
+    | '/buchungen'
+    | '/family'
+    | '/home'
     | '/login'
+    | '/mitglied-werden'
+    | '/mitgliedschaft'
     | '/passwort-vergessen'
+    | '/probetraining'
+    | '/problem-melden'
+    | '/profil'
     | '/registrieren'
     | '/willkommen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuchenRoute: typeof BuchenRoute
+  BuchungenRoute: typeof BuchungenRoute
+  FamilyRoute: typeof FamilyRoute
+  HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
+  MitgliedWerdenRoute: typeof MitgliedWerdenRoute
+  MitgliedschaftRoute: typeof MitgliedschaftRoute
   PasswortVergessenRoute: typeof PasswortVergessenRoute
+  ProbetrainingRoute: typeof ProbetrainingRoute
+  ProblemMeldenRoute: typeof ProblemMeldenRoute
+  ProfilRoute: typeof ProfilRoute
   RegistrierenRoute: typeof RegistrierenRoute
   WillkommenRoute: typeof WillkommenRoute
 }
@@ -95,6 +221,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buchen': {
+      id: '/buchen'
+      path: '/buchen'
+      fullPath: '/buchen'
+      preLoaderRoute: typeof BuchenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buchungen': {
+      id: '/buchungen'
+      path: '/buchungen'
+      fullPath: '/buchungen'
+      preLoaderRoute: typeof BuchungenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family': {
+      id: '/family'
+      path: '/family'
+      fullPath: '/family'
+      preLoaderRoute: typeof FamilyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -102,11 +256,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mitglied-werden': {
+      id: '/mitglied-werden'
+      path: '/mitglied-werden'
+      fullPath: '/mitglied-werden'
+      preLoaderRoute: typeof MitgliedWerdenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mitgliedschaft': {
+      id: '/mitgliedschaft'
+      path: '/mitgliedschaft'
+      fullPath: '/mitgliedschaft'
+      preLoaderRoute: typeof MitgliedschaftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/passwort-vergessen': {
       id: '/passwort-vergessen'
       path: '/passwort-vergessen'
       fullPath: '/passwort-vergessen'
       preLoaderRoute: typeof PasswortVergessenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/probetraining': {
+      id: '/probetraining'
+      path: '/probetraining'
+      fullPath: '/probetraining'
+      preLoaderRoute: typeof ProbetrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/problem-melden': {
+      id: '/problem-melden'
+      path: '/problem-melden'
+      fullPath: '/problem-melden'
+      preLoaderRoute: typeof ProblemMeldenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profil': {
+      id: '/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registrieren': {
@@ -128,8 +317,17 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuchenRoute: BuchenRoute,
+  BuchungenRoute: BuchungenRoute,
+  FamilyRoute: FamilyRoute,
+  HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
+  MitgliedWerdenRoute: MitgliedWerdenRoute,
+  MitgliedschaftRoute: MitgliedschaftRoute,
   PasswortVergessenRoute: PasswortVergessenRoute,
+  ProbetrainingRoute: ProbetrainingRoute,
+  ProblemMeldenRoute: ProblemMeldenRoute,
+  ProfilRoute: ProfilRoute,
   RegistrierenRoute: RegistrierenRoute,
   WillkommenRoute: WillkommenRoute,
 }
