@@ -14,6 +14,8 @@ import {
   SEED_ACTIVITY,
   SEED_ADDONS,
   SEED_ADMIN_USERS,
+  SEED_INACTIVE,
+  SEED_ROLES,
   SEED_AVAILABILITY,
   SEED_BACKUPS,
   SEED_DIARY,
@@ -25,6 +27,7 @@ import {
   type AddonStatus,
   type AdminRole,
   type AdminUser,
+  type AppUser,
   type Backup,
   type BlockedDay,
   type DayPlan,
@@ -56,9 +59,12 @@ type Store = {
   extensions: Extension[];
   requests: HourRequest[];
   diary: DiaryEntry[];
-  adminUsers: AdminUser[];
-  /** Admin users with the trainer role. Trainers are created via Admin Verwaltung. */
-  trainers: AdminUser[];
+  /** All users (customers + staff) with their roles. */
+  users: AppUser[];
+  /** Users with the trainer role. Trainers are managed via Admin Verwaltung. */
+  trainers: AppUser[];
+  /** Customer currently viewed in Support View, if any. */
+  impersonating: string | null;
   backups: Backup[];
   activity: Activity[];
   addons: AddonPurchase[];
@@ -90,10 +96,15 @@ type Store = {
   decideRequest: (id: string, status: Exclude<RequestStatus, "pending">) => void;
   addDiary: (e: Omit<DiaryEntry, "id">) => void;
   removeDiary: (id: string) => void;
-  setRole: (id: string, role: AdminRole) => void;
-  addAdminUser: (u: Omit<AdminUser, "id" | "active">) => void;
+  grantRole: (id: string, role: AdminRole) => void;
+  revokeRole: (id: string, role: AdminRole) => void;
+  addAdminUser: (u: { name: string; email: string; phone: string; roles: AdminRole[] }) => void;
+  deleteUser: (id: string) => void;
   toggleUserActive: (id: string) => void;
+  startImpersonation: (customerId: string) => void;
+  endImpersonation: () => void;
   runBackup: () => void;
+  restoreBackup: (id: string) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -110,14 +121,31 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
   const [extensions, setExtensions] = useState<Extension[]>(() => SEED_EXTENSIONS(new Date()));
   const [requests, setRequests] = useState<HourRequest[]>(() => SEED_REQUESTS(new Date()));
   const [diary, setDiary] = useState<DiaryEntry[]>(() => SEED_DIARY(new Date()));
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(SEED_ADMIN_USERS);
+  const [staff, setStaff] = useState<AdminUser[]>(SEED_ADMIN_USERS);
+  const [roles, setRoles] = useState<Record<string, AdminRole[]>>(SEED_ROLES);
+  const [inactive, setInactive] = useState<string[]>(SEED_INACTIVE);
+  const [impersonating, setImpersonating] = useState<string | null>(null);
   const [backups, setBackups] = useState<Backup[]>(() => SEED_BACKUPS(new Date()));
   const [activity, setActivity] = useState<Activity[]>(() => SEED_ACTIVITY(new Date()));
   const [addons, setAddons] = useState<AddonPurchase[]>(() => SEED_ADDONS(new Date()));
 
   const store = useMemo<Store>(() => {
-    const log = (action: string, entity: string, entityId: string, meta: string) =>
-      setActivity((p) => [{ id: `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`, at: stamp(), actor: ACTOR, action, entity, entityId, meta }, ...p]);
+    const log = (action: string, entity: string, entityId: string, meta: string, extra: { subjectId?: string; pg?: { from: number; to: number } | null } = {}) =>
+      setActivity((p) => [{ id: `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`, at: `${stamp()}:${String(new Date().getSeconds()).padStart(2, "0")}`, actor: ACTOR, action, entity, entityId, meta, subjectId: extra.subjectId ?? null, pg: extra.pg ?? null }, ...p]);
+    const users: AppUser[] = [
+      ...customers.map((c) => ({ id: c.id, name: `${c.firstName} ${c.lastName}`, email: c.email, phone: c.phone, since: c.since, roles: roles[c.id] ?? [], active: !inactive.includes(c.id), kind: "customer" as const })),
+      ...staff.map((u) => ({ ...u, roles: roles[u.id] ?? [], active: !inactive.includes(u.id), kind: "staff" as const })),
+    ];
+    const pgChange = (customerId: string, delta: 1 | -1) => {
+      const c = customers.find((x) => x.id === customerId);
+      if (!c?.pg) return null;
+      const to = Math.min(c.pg.total, Math.max(0, c.pg.units + delta));
+      if (to === c.pg.units) return null;
+      setCustomers((p) => p.map((x) => (x.id === customerId && x.pg ? { ...x, pg: { ...x.pg, units: to } } : x)));
+      return { from: c.pg.units, to };
+    };
+    const fmtD = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+    const bookingMeta = (b: { start: string; type: string }) => `Datum: ${fmtD(b.start)} | Zeit: ${b.start.slice(11, 16)}:00 | Typ: ${b.type === "private_gym" ? "Private Gym" : b.type === "premium" ? "Premium Training" : "Standard Training"}`;
     const nameOf = (id: string) => {
       const c = customers.find((x) => x.id === id);
       return c ? `${c.firstName} ${c.lastName}` : id;
@@ -133,25 +161,29 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
     };
 
     return {
-      customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, adminUsers, backups, activity, addons,
-      trainers: adminUsers.filter((u) => u.role === "trainer"),
+      customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, users, backups, activity, addons, impersonating,
+      trainers: users.filter((u) => u.roles.includes("trainer")),
 
       addBooking: (b) => {
         setBookings((p) => [...p, { ...b, session: b.session ?? [1, 1], id: `b${Date.now()}` }]);
-        log("booking.create", "Buchung", b.customerId, `${nameOf(b.customerId)} · ${b.start}`);
+        const pg = b.type === "private_gym" ? pgChange(b.customerId, -1) : null;
+        log("booking.create", "Buchung", b.customerId, bookingMeta(b), { subjectId: b.customerId, pg });
       },
       updateBooking: (id, patch) => {
         setBookings((p) => p.map((b) => (b.id === id ? { ...b, ...patch } : b)));
         log("booking.update", "Buchung", id, Object.keys(patch).join(", "));
       },
       setStatus: (id, status) => {
-        setBookings((p) => p.map((b) => (b.id === id ? { ...b, status } : b)));
-        log(status === "cancelled" ? "booking.cancel" : "booking.status", "Buchung", id, `Status → ${status}`);
+        const b = bookings.find((x) => x.id === id);
+        setBookings((p) => p.map((x) => (x.id === id ? { ...x, status } : x)));
+        const refund = b && status === "cancelled" && b.status !== "cancelled" && b.status !== "completed" && b.type === "private_gym" ? pgChange(b.customerId, 1) : null;
+        log(status === "cancelled" ? "booking.cancel" : "booking.status", "Buchung", id, b ? bookingMeta(b) : `Status → ${status}`, b ? { subjectId: b.customerId, pg: refund } : {});
       },
       deleteBooking: (id) => {
         const b = bookings.find((x) => x.id === id);
         setBookings((p) => p.filter((x) => x.id !== id));
-        if (b) log("booking.delete", "Buchung", id, `${nameOf(b.customerId)} · ${b.start}`);
+        const refund = b && b.status !== "cancelled" && b.status !== "completed" && b.type === "private_gym" ? pgChange(b.customerId, 1) : null;
+        if (b) log("booking.delete", "Buchung", id, bookingMeta(b), { subjectId: b.customerId, pg: refund });
       },
       adjustHours: adjust,
 
@@ -271,27 +303,62 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
         setDiary((p) => p.filter((x) => x.id !== id));
         log("diary.delete", "Trainings Tagebuch", id, "Eintrag gelöscht");
       },
-      setRole: (id, role) => {
-        const u = adminUsers.find((x) => x.id === id);
-        setAdminUsers((p) => p.map((x) => (x.id === id ? { ...x, role } : x)));
-        if (u) log("role.change", "Admin Verwaltung", id, `${u.email}: ${u.role} → ${role}`);
+      grantRole: (id, role) => {
+        const u = users.find((x) => x.id === id);
+        if (!u || u.roles.includes(role)) return;
+        setRoles((p) => ({ ...p, [id]: [...(p[id] ?? []), role] }));
+        log("role.grant", "Admin Verwaltung", id, `${u.email}: ${role}`);
+      },
+      revokeRole: (id, role) => {
+        const u = users.find((x) => x.id === id);
+        if (!u || !u.roles.includes(role)) return;
+        setRoles((p) => ({ ...p, [id]: (p[id] ?? []).filter((r) => r !== role) }));
+        log("role.revoke", "Admin Verwaltung", id, `${u.email}: ${role}`);
       },
       addAdminUser: (u) => {
         const id = `u${Date.now()}`;
-        setAdminUsers((p) => [...p, { ...u, id, active: true }]);
-        log("user.create", "Admin Verwaltung", id, `${u.email} (${u.role})`);
+        setStaff((p) => [...p, { id, name: u.name, email: u.email, phone: u.phone, since: stamp().slice(0, 10) }]);
+        setRoles((p) => ({ ...p, [id]: u.roles }));
+        log("user.create", "Admin Verwaltung", id, `${u.email} (${u.roles.join(", ") || "Benutzer"})`);
+      },
+      deleteUser: (id) => {
+        const u = users.find((x) => x.id === id);
+        if (!u) return;
+        if (u.kind === "customer") {
+          setCustomers((p) => p.filter((x) => x.id !== id));
+          setBookings((p) => p.filter((b) => b.customerId !== id));
+        } else setStaff((p) => p.filter((x) => x.id !== id));
+        setRoles((p) => {
+          const n = { ...p };
+          delete n[id];
+          return n;
+        });
+        log("user.delete", "Admin Verwaltung", id, u.email);
       },
       toggleUserActive: (id) => {
-        const u = adminUsers.find((x) => x.id === id);
-        setAdminUsers((p) => p.map((x) => (x.id === id ? { ...x, active: !x.active } : x)));
+        const u = users.find((x) => x.id === id);
+        setInactive((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
         if (u) log("user.toggle", "Admin Verwaltung", id, `${u.email} ${u.active ? "deaktiviert" : "aktiviert"}`);
+      },
+      startImpersonation: (customerId) => {
+        setImpersonating(customerId);
+        log("impersonation.start", "Support View", customerId, "Kunden-Dashboard", { subjectId: customerId });
+      },
+      endImpersonation: () => {
+        if (impersonating) log("impersonation.end", "Support View", impersonating, "Kunden-Dashboard", { subjectId: impersonating });
+        setImpersonating(null);
       },
       runBackup: () => {
         setBackups((p) => [{ id: `bk${Date.now()}`, at: stamp(), kind: "manual", status: "ok", sizeMb: p[0]?.sizeMb ?? 50, tables: 24 }, ...p]);
         log("backup.manual", "Backups", "manual", "Manuelles Backup ausgelöst");
       },
+      restoreBackup: (id) => {
+        const bk = backups.find((x) => x.id === id);
+        // Mock: no data is replaced. The real restore runs on the backend.
+        if (bk) log("backup.restore", "Backups", id, `Wiederherstellung von ${bk.at} angefordert`);
+      },
     };
-  }, [customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, adminUsers, backups, activity, addons]);
+  }, [customers, bookings, hourChanges, availability, blocked, v2, v2Settings, extensions, requests, diary, staff, roles, inactive, impersonating, backups, activity, addons]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

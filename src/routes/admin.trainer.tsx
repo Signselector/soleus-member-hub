@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, FileText, History, Info, Search } from "luci
 import { Chip, PageHeader, inputCls } from "@/components/admin/ui";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import type { AdminBooking } from "@/lib/admin/mock";
-import type { AdminUser } from "@/lib/admin/mock2";
+import type { AppUser } from "@/lib/admin/mock2";
 import { useAdminStore } from "@/lib/admin/store";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,7 @@ function Trainers() {
   const { trainers, bookings, toggleUserActive } = useAdminStore();
   const [q, setQ] = useState("");
   const [month, setMonth] = useState<string | null>(null);
-  const [hist, setHist] = useState<AdminUser | null>(null);
+  const [hist, setHist] = useState<AppUser | null>(null);
   const cur = month ?? new Date().toISOString().slice(0, 7);
 
   const shift = (n: number) => {
@@ -53,7 +53,7 @@ function Trainers() {
     URL.revokeObjectURL(a.href);
   };
 
-  const Row = ({ t }: { t: AdminUser }) => {
+  const Row = ({ t }: { t: AppUser }) => {
     const s = stats(bookings, t.id, cur);
     return (
       <tr className={cn("border-b border-border/70 last:border-0", !t.active && "text-muted-foreground")}>

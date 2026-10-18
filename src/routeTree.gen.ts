@@ -38,7 +38,6 @@ import { Route as AdminLandingpageEmbedRouteImport } from './routes/admin.landin
 import { Route as AdminProblemeRouteImport } from './routes/admin.probleme'
 import { Route as AdminStundenAnfragenRouteImport } from './routes/admin.stunden-anfragen'
 import { Route as AdminStundenblockHistoryRouteImport } from './routes/admin.stundenblock-history'
-import { Route as AdminSupportViewRouteImport } from './routes/admin.support-view'
 import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
 import { Route as AdminTrainingsTagebuchRouteImport } from './routes/admin.trainings-tagebuch'
 import { Route as AdminZeitplanRouteImport } from './routes/admin.zeitplan'
@@ -47,6 +46,8 @@ import { Route as AdminZusatzleistungenRouteImport } from './routes/admin.zusatz
 import { Route as AdminZutrittRouteImport } from './routes/admin.zutritt'
 import { Route as AdminKundenIndexRouteImport } from './routes/admin.kunden.index'
 import { Route as AdminKundenIdRouteImport } from './routes/admin.kunden.$id'
+import { Route as AdminSupportViewIndexRouteImport } from './routes/admin.support-view.index'
+import { Route as AdminSupportViewIdRouteImport } from './routes/admin.support-view.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -195,11 +196,6 @@ const AdminStundenblockHistoryRoute =
     path: '/stundenblock-history',
     getParentRoute: () => AdminRoute,
   } as any)
-const AdminSupportViewRoute = AdminSupportViewRouteImport.update({
-  id: '/support-view',
-  path: '/support-view',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminTrainerRoute = AdminTrainerRouteImport.update({
   id: '/trainer',
   path: '/trainer',
@@ -240,6 +236,16 @@ const AdminKundenIdRoute = AdminKundenIdRouteImport.update({
   path: '/kunden/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSupportViewIndexRoute = AdminSupportViewIndexRouteImport.update({
+  id: '/support-view/',
+  path: '/support-view/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSupportViewIdRoute = AdminSupportViewIdRouteImport.update({
+  id: '/support-view/$id',
+  path: '/support-view/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -270,7 +276,6 @@ export interface FileRoutesByFullPath {
   '/admin/probleme': typeof AdminProblemeRoute
   '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
   '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
-  '/admin/support-view': typeof AdminSupportViewRoute
   '/admin/trainer': typeof AdminTrainerRoute
   '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
   '/admin/zeitplan': typeof AdminZeitplanRoute
@@ -279,7 +284,9 @@ export interface FileRoutesByFullPath {
   '/admin/zutritt': typeof AdminZutrittRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/support-view/$id': typeof AdminSupportViewIdRoute
   '/admin/kunden/': typeof AdminKundenIndexRoute
+  '/admin/support-view/': typeof AdminSupportViewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -309,7 +316,6 @@ export interface FileRoutesByTo {
   '/admin/probleme': typeof AdminProblemeRoute
   '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
   '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
-  '/admin/support-view': typeof AdminSupportViewRoute
   '/admin/trainer': typeof AdminTrainerRoute
   '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
   '/admin/zeitplan': typeof AdminZeitplanRoute
@@ -318,7 +324,9 @@ export interface FileRoutesByTo {
   '/admin/zutritt': typeof AdminZutrittRoute
   '/admin': typeof AdminIndexRoute
   '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/support-view/$id': typeof AdminSupportViewIdRoute
   '/admin/kunden': typeof AdminKundenIndexRoute
+  '/admin/support-view': typeof AdminSupportViewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -350,7 +358,6 @@ export interface FileRoutesById {
   '/admin/probleme': typeof AdminProblemeRoute
   '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
   '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
-  '/admin/support-view': typeof AdminSupportViewRoute
   '/admin/trainer': typeof AdminTrainerRoute
   '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
   '/admin/zeitplan': typeof AdminZeitplanRoute
@@ -359,7 +366,9 @@ export interface FileRoutesById {
   '/admin/zutritt': typeof AdminZutrittRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/support-view/$id': typeof AdminSupportViewIdRoute
   '/admin/kunden/': typeof AdminKundenIndexRoute
+  '/admin/support-view/': typeof AdminSupportViewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -392,7 +401,6 @@ export interface FileRouteTypes {
     | '/admin/probleme'
     | '/admin/stunden-anfragen'
     | '/admin/stundenblock-history'
-    | '/admin/support-view'
     | '/admin/trainer'
     | '/admin/trainings-tagebuch'
     | '/admin/zeitplan'
@@ -401,7 +409,9 @@ export interface FileRouteTypes {
     | '/admin/zutritt'
     | '/admin/'
     | '/admin/kunden/$id'
+    | '/admin/support-view/$id'
     | '/admin/kunden/'
+    | '/admin/support-view/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -431,7 +441,6 @@ export interface FileRouteTypes {
     | '/admin/probleme'
     | '/admin/stunden-anfragen'
     | '/admin/stundenblock-history'
-    | '/admin/support-view'
     | '/admin/trainer'
     | '/admin/trainings-tagebuch'
     | '/admin/zeitplan'
@@ -440,7 +449,9 @@ export interface FileRouteTypes {
     | '/admin/zutritt'
     | '/admin'
     | '/admin/kunden/$id'
+    | '/admin/support-view/$id'
     | '/admin/kunden'
+    | '/admin/support-view'
   id:
     | '__root__'
     | '/'
@@ -471,7 +482,6 @@ export interface FileRouteTypes {
     | '/admin/probleme'
     | '/admin/stunden-anfragen'
     | '/admin/stundenblock-history'
-    | '/admin/support-view'
     | '/admin/trainer'
     | '/admin/trainings-tagebuch'
     | '/admin/zeitplan'
@@ -480,7 +490,9 @@ export interface FileRouteTypes {
     | '/admin/zutritt'
     | '/admin/'
     | '/admin/kunden/$id'
+    | '/admin/support-view/$id'
     | '/admin/kunden/'
+    | '/admin/support-view/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -708,13 +720,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStundenblockHistoryRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/support-view': {
-      id: '/admin/support-view'
-      path: '/support-view'
-      fullPath: '/admin/support-view'
-      preLoaderRoute: typeof AdminSupportViewRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/trainer': {
       id: '/admin/trainer'
       path: '/trainer'
@@ -771,6 +776,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminKundenIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/support-view/': {
+      id: '/admin/support-view/'
+      path: '/support-view'
+      fullPath: '/admin/support-view/'
+      preLoaderRoute: typeof AdminSupportViewIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support-view/$id': {
+      id: '/admin/support-view/$id'
+      path: '/support-view/$id'
+      fullPath: '/admin/support-view/$id'
+      preLoaderRoute: typeof AdminSupportViewIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -786,7 +805,6 @@ interface AdminRouteChildren {
   AdminProblemeRoute: typeof AdminProblemeRoute
   AdminStundenAnfragenRoute: typeof AdminStundenAnfragenRoute
   AdminStundenblockHistoryRoute: typeof AdminStundenblockHistoryRoute
-  AdminSupportViewRoute: typeof AdminSupportViewRoute
   AdminTrainerRoute: typeof AdminTrainerRoute
   AdminTrainingsTagebuchRoute: typeof AdminTrainingsTagebuchRoute
   AdminZeitplanRoute: typeof AdminZeitplanRoute
@@ -795,7 +813,9 @@ interface AdminRouteChildren {
   AdminZutrittRoute: typeof AdminZutrittRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminKundenIdRoute: typeof AdminKundenIdRoute
+  AdminSupportViewIdRoute: typeof AdminSupportViewIdRoute
   AdminKundenIndexRoute: typeof AdminKundenIndexRoute
+  AdminSupportViewIndexRoute: typeof AdminSupportViewIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -810,7 +830,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProblemeRoute: AdminProblemeRoute,
   AdminStundenAnfragenRoute: AdminStundenAnfragenRoute,
   AdminStundenblockHistoryRoute: AdminStundenblockHistoryRoute,
-  AdminSupportViewRoute: AdminSupportViewRoute,
   AdminTrainerRoute: AdminTrainerRoute,
   AdminTrainingsTagebuchRoute: AdminTrainingsTagebuchRoute,
   AdminZeitplanRoute: AdminZeitplanRoute,
@@ -819,7 +838,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminZutrittRoute: AdminZutrittRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminKundenIdRoute: AdminKundenIdRoute,
+  AdminSupportViewIdRoute: AdminSupportViewIdRoute,
   AdminKundenIndexRoute: AdminKundenIndexRoute,
+  AdminSupportViewIndexRoute: AdminSupportViewIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

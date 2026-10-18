@@ -6,7 +6,7 @@ Status: erste Iteration (UI + Struktur auf Mock-Daten). Das alte Adminportal war
 - Buchungen, Kunden (+ Buchungshistorie), Abos (Coaching-Blöcke + Zahlungsstatus), Zusatzleistungen (Jahresfilter), Trainer (anlegen, bearbeiten, deaktivieren).
 - Zeitplan (wöchentliche Verfügbarkeit, gesperrte Tage), Zeitplan V2 (Private Gym + Coach-Option; V1-Zeiten schreibgeschützt), Stunden Anfragen (freigeben/ablehnen → Verlängerung in der History), Stundenblock History.
 - Trainings Tagebuch, Admin Verwaltung (Rollen: Super-Admin, Admin, Support, Trainer), Backups (35 Tage, manuell auslösbar), Landingpage Embed (Code = iframe der öffentlichen Buchungsseite wie auf soleus.at), Aktivitätsprotokoll (letzte 3 Monate, alle Aktionen im Admin werden protokolliert).
-- Support View: bewusst noch nicht umgesetzt.
+- Support View: Kunden-Dashboard ansehen (eigene Seite statt Popup), Kundenprobleme erkennen und beheben; Start/Ende werden als IMPERSONATION_START / IMPERSONATION_END protokolliert.
 - Navigation enthält zusätzlich vorgesehene Module (Zutritt, Probleme, Family & Friends, Gebühren & Gutschriften).
 - Rolle `admin` (Mock, `auth-state.tsx`); `/admin` ist per `AdminGate` geschützt.
 
@@ -45,3 +45,9 @@ Validierung je Entität: Zeilenanzahl alt = neu, Stichproben je Kunde (Abo, Stun
 - **Stundenblock Anfragen:** Typ Coaching / Private Gym, Paket, Einheiten, Gültigkeit, Zahlungsnachweis (Datei folgt mit Backend), Freigeben/Ablehnen, "Kürzlich freigegeben" mit Paginierung. Freigabe Coaching → Einheiten + History-Eintrag, Private Gym → PG-Einheiten.
 - **Stundenblock History:** KPIs (abgelaufene Blöcke, verfallene Stunden, Verlängerungen, Einträge), Tab Laufzeit-Verlängerungen (Quartal, +n Wochen, entfernen setzt das Ablaufdatum zurück) und Tab Verlauf (Stundenänderungen).
 - **Trainings Tagebuch:** Kunde per Suche/Auswahl, erst danach Einträge.
+
+## Benutzer, Backups, Embed, Protokoll, Support View (aus Screenshots, Annahmen)
+- **Benutzerverwaltung (Super-Admin):** alle Benutzer (Kunden + Mitarbeiter) mit Mehrfach-Rollen Admin / Trainer / Logfile (plus Super-Admin). "Benutzer" = jeder Kunde. Der letzte Super-Admin kann nicht entfernt werden. Offen: Bedeutung der Rolle "Logfile" (angenommen: darf das Aktivitätsprotokoll sehen, serverseitig noch nicht erzwungen).
+- **Backups:** Liste mit Dateiname (`YYYY-MM-DD_HH-mm.json`), Details, Restore mit Tipp-Bestätigung. Restore verändert in der Vorschau keine Daten.
+- **Landingpage Embed:** Vorschau-Link, iframe-Code (inkl. Auto-Höhe-Skript), UTM-Tracking, Hinweise (Texte aus dem alten Portal).
+- **Aktivitätsprotokoll:** Zeitpunkt mit Sekunden, Benutzer, Aktion (Label wie im alten Portal, z. B. IMPERSONATION_START), Details inkl. Private-Gym-Saldo (Buchung erstellt −1, gelöscht/storniert +1).

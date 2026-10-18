@@ -85,6 +85,8 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
 }
 
 export function AdminShell({ children }: { children: ReactNode }) {
+  const { impersonating, customers, endImpersonation } = useAdminStore();
+  const impersonated = customers.find((c) => c.id === impersonating);
   const [open, setOpen] = useState(false);
   const [today, setToday] = useState("");
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -116,6 +118,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </div>
           <p className="eyebrow hidden sm:block" suppressHydrationWarning>{today}</p>
         </header>
+        {impersonated && !path.startsWith("/admin/support-view/") && (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#211d1b] px-5 py-3 text-sm text-[#f7f5f1] md:px-10">
+            <span>Impersonation aktiv: {impersonated.firstName} {impersonated.lastName}</span>
+            <button type="button" onClick={endImpersonation} className="eyebrow text-[#f7f5f1] underline underline-offset-4">Beenden</button>
+          </div>
+        )}
         <main className="mx-auto max-w-7xl px-5 py-10 md:px-10 md:py-14">{children}</main>
       </div>
     </div>

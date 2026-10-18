@@ -100,15 +100,29 @@ export const SEED_DIARY = (today: Date): DiaryEntry[] => {
   ];
 };
 
-export type AdminRole = "super_admin" | "admin" | "support" | "trainer";
-export const ROLE_LABEL: Record<AdminRole, string> = { super_admin: "Super-Admin", admin: "Admin", support: "Support", trainer: "Trainer" };
-export type AdminUser = { id: string; name: string; email: string; phone: string; role: AdminRole; active: boolean };
+/** Staff roles. Every user is a customer ("Benutzer") by default; staff roles are added on top. */
+export type AdminRole = "super_admin" | "admin" | "trainer" | "logfile";
+export const ROLE_LABEL: Record<AdminRole, string> = { super_admin: "Super-Admin", admin: "Admin", trainer: "Trainer", logfile: "Logfile" };
+/** Roles a super-admin can toggle per user. */
+export const TOGGLE_ROLES: Exclude<AdminRole, "super_admin">[] = ["admin", "trainer", "logfile"];
+/** Staff-only identities (not in the customer list). */
+export type AdminUser = { id: string; name: string; email: string; phone: string; since: string };
 export const SEED_ADMIN_USERS: AdminUser[] = [
-  { id: "u1", name: "SOLEUS Office", email: "office@soleus.at", phone: "", role: "super_admin", active: true },
-  { id: "u2", name: "Lukas Berger", email: "lukas.berger@soleus.at", phone: "+43 660 100 20 30", role: "trainer", active: true },
-  { id: "u3", name: "Anna Steiner", email: "anna.steiner@soleus.at", phone: "+43 664 200 30 40", role: "trainer", active: true },
-  { id: "u4", name: "Florian Koller", email: "florian.koller@soleus.at", phone: "+43 676 300 40 50", role: "trainer", active: false },
+  { id: "u1", name: "SOLEUS Office", email: "office@soleus.at", phone: "", since: "2024-01-02" },
+  { id: "u2", name: "Lukas Berger", email: "lukas.berger@soleus.at", phone: "+43 660 100 20 30", since: "2024-03-11" },
+  { id: "u3", name: "Anna Steiner", email: "anna.steiner@soleus.at", phone: "+43 664 200 30 40", since: "2024-06-03" },
+  { id: "u4", name: "Florian Koller", email: "florian.koller@soleus.at", phone: "+43 676 300 40 50", since: "2025-02-17" },
 ];
+export const SEED_ROLES: Record<string, AdminRole[]> = {
+  u1: ["super_admin", "admin"],
+  u2: ["trainer"],
+  u3: ["trainer"],
+  u4: ["trainer"],
+  c3: ["logfile"],
+};
+export const SEED_INACTIVE: string[] = ["u4"];
+/** Unified user (customer or staff-only) as shown in Admin Verwaltung. */
+export type AppUser = { id: string; name: string; email: string; phone: string; since: string; roles: AdminRole[]; active: boolean; kind: "customer" | "staff" };
 
 export type Backup = { id: string; at: string; kind: "daily" | "manual"; status: "ok" | "failed"; sizeMb: number; tables: number };
 export const SEED_BACKUPS = (today: Date): Backup[] =>
@@ -118,30 +132,73 @@ export const SEED_BACKUPS = (today: Date): Backup[] =>
     return { id: `bk${i}`, at, kind: "daily" as const, status: i === 17 ? ("failed" as const) : ("ok" as const), sizeMb: Math.round((42 + (35 - i) * 0.35) * 10) / 10, tables: 24 };
   });
 
-export type Activity = { id: string; at: string; actor: string; action: string; entity: string; entityId: string; meta: string };
+export type Activity = {
+  id: string;
+  /** Local time with seconds: YYYY-MM-DDTHH:mm:ss */
+  at: string;
+  /** Who triggered it (admin e-mail or "System"). */
+  actor: string;
+  /** Machine action code, e.g. "booking.create". */
+  action: string;
+  entity: string;
+  entityId: string;
+  /** Details line. */
+  meta: string;
+  /** Affected customer, if any. */
+  subjectId?: string | null;
+  /** Private-Gym balance change caused by the action. */
+  pg?: { from: number; to: number } | null;
+};
+
+export const ACTION_LABEL: Record<string, { label: string; tone: "dark" | "red" | "line" }> = {
+  "booking.create": { label: "Buchung erstellt", tone: "dark" },
+  "booking.delete": { label: "Buchung gelöscht", tone: "red" },
+  "booking.cancel": { label: "Buchung storniert", tone: "red" },
+  "booking.update": { label: "Buchung geändert", tone: "dark" },
+  "booking.status": { label: "Buchungsstatus geändert", tone: "dark" },
+  "schedule.v2.add": { label: "Zeitfenster erstellt", tone: "dark" },
+  "schedule.v2.remove": { label: "Zeitfenster gelöscht", tone: "red" },
+  "impersonation.start": { label: "IMPERSONATION_START", tone: "line" },
+  "impersonation.end": { label: "IMPERSONATION_END", tone: "line" },
+  "debit.move": { label: "MEMBERSHIP_RESCHEDULED", tone: "line" },
+  "hours.adjust": { label: "Stunden angepasst", tone: "dark" },
+  "block.add": { label: "Block hinzugefügt", tone: "dark" },
+  "pg.add": { label: "Private Gym hinzugefügt", tone: "dark" },
+  "block.extend": { label: "Laufzeit verlängert", tone: "dark" },
+  "customer.create": { label: "Kunde erstellt", tone: "dark" },
+  "customer.delete": { label: "Kunde gelöscht", tone: "red" },
+  "role.grant": { label: "Rolle zugewiesen", tone: "dark" },
+  "role.revoke": { label: "Rolle entzogen", tone: "red" },
+  "user.create": { label: "Benutzer erstellt", tone: "dark" },
+  "user.delete": { label: "Benutzer gelöscht", tone: "red" },
+  "backup.manual": { label: "Backup erstellt", tone: "dark" },
+  "backup.restore": { label: "Backup wiederhergestellt", tone: "red" },
+};
+
 export const SEED_ACTIVITY = (today: Date): Activity[] => {
-  const actions: [string, string, string][] = [
-    ["booking.create", "Buchung", "Buchung erstellt"],
-    ["booking.cancel", "Buchung", "Buchung storniert"],
-    ["customer.update", "Kunde", "Kundendaten geändert"],
-    ["hours.adjust", "Stundenblock", "Stunden angepasst"],
-    ["admin.login", "Admin", "Admin Login"],
-    ["plan.change", "Abo", "Abo geändert"],
-  ];
-  const actors = ["office@soleus.at", "lukas.berger@soleus.at", "System", "max.mustermann@example.at", "laura.huber@example.at"];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dmy = (d: Date) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   const out: Activity[] = [];
+  const kinds = ["booking.create", "booking.create", "booking.delete", "schedule.v2.add", "impersonation.start", "impersonation.end", "debit.move", "booking.create", "schedule.v2.remove", "hours.adjust"];
+  const cust = ["c1", "c2", "c3", "c4", "c7"];
   for (let i = 0; i < 70; i++) {
     const day = Math.floor((i * 1.29) % 90);
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day, 7 + ((i * 5) % 14), (i * 13) % 60);
-    const [code, entity, text] = actions[i % actions.length]!;
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day, 7 + ((i * 5) % 14), (i * 13) % 60, (i * 17) % 60);
+    const action = kinds[i % kinds.length]!;
+    const subject = cust[i % cust.length]!;
+    const target = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1 + (i % 12), 8 + (i % 12));
+    const isBooking = action.startsWith("booking.") && action !== "booking.update";
+    const before = 20 - (i % 15);
     out.push({
       id: `a${i}`,
-      at: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
-      actor: actors[(i * 3) % actors.length]!,
-      action: code,
-      entity,
-      entityId: `${entity === "Kunde" ? "c" : "b"}${(i % 7) + 1}`,
-      meta: text,
+      at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`,
+      actor: action.startsWith("impersonation") || action === "debit.move" || action === "schedule.v2.add" || action === "schedule.v2.remove" || action === "hours.adjust" ? "office@soleus.at" : "System",
+      action,
+      entity: action.split(".")[0]!,
+      entityId: subject,
+      meta: isBooking ? `Datum: ${dmy(target)} | Zeit: ${pad(target.getHours())}:00:00 | Typ: Private Gym` : action === "debit.move" ? "Abbuchung verschoben" : action.startsWith("schedule") ? `Datum: ${dmy(target)} | Zeit: ${pad(target.getHours())}:00:00` : action === "hours.adjust" ? "Manuelle Anpassung" : "Kunden-Dashboard",
+      subjectId: subject,
+      pg: isBooking ? (action === "booking.create" ? { from: before, to: before - 1 } : { from: before - 1, to: before }) : null,
     });
   }
   return out.sort((a, b) => b.at.localeCompare(a.at));

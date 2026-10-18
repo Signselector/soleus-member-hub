@@ -82,7 +82,7 @@ export const ADMIN_MODULES: AdminModule[] = [
     built: true,
   },
   { slug: "aktivitaetsprotokoll", label: "Aktivitätsprotokoll", group: "System", description: "Letzte 3 Monate aller Benutzeraktivitäten.", built: true },
-  { slug: "support-view", label: "Support View", group: "System", description: "Zustand eines Kunden nachvollziehen.", migration: "Vorerst nicht umgesetzt (bewusst zurückgestellt)." },
+  { slug: "support-view", label: "Support View", group: "System", description: "Kunden-Dashboard ansehen, Kundenprobleme erkennen und beheben.", built: true },
 
   { slug: "zutritt", label: "Zutritt", group: "Demnächst", planned: true, description: "Lock API, aktive Codes, Zutrittslogs, Check-in, Check-out, Fehler." },
   { slug: "probleme", label: "Probleme", group: "Demnächst", planned: true, description: "Schadensmeldungen, Wartezeit, Überziehung, Zutrittsprobleme." },
