@@ -14,8 +14,9 @@ if (typeof window !== "undefined" && !(window as any).__soleusChunkGuard) {
       window.location.reload();
     }
   };
-  window.addEventListener("vite:preloadError", (e) => {
-    e.preventDefault();
+  // Do NOT call e.preventDefault(): that makes the failed import resolve to `undefined`,
+  // which crashes TanStack's lazy route loader ("reading 'component'").
+  window.addEventListener("vite:preloadError", () => {
     reloadOnce();
   });
   window.addEventListener("unhandledrejection", (e) => {
