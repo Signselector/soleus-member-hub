@@ -1,36 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { TrialBooking } from "@/components/booking/TrialBooking";
 
 export const Route = createFileRoute("/probetraining")({
   head: () => ({
     meta: [
       { title: "Kostenloses Probetraining buchen — SOLEUS" },
-      { name: "description", content: "Such dir dein Wunschdatum samt Uhrzeit aus. Wir bestätigen telefonisch innerhalb von 24 Stunden." },
+      { name: "description", content: "Such dir dein Wunschdatum samt Uhrzeit aus." },
       { property: "og:title", content: "Kostenloses Probetraining buchen — SOLEUS" },
-      { property: "og:description", content: "Such dir dein Wunschdatum samt Uhrzeit aus. Wir bestätigen telefonisch innerhalb von 24 Stunden." },
+      { property: "og:description", content: "Such dir dein Wunschdatum samt Uhrzeit aus." },
     ],
   }),
   component: Page,
 });
 
-/** Same booking widget that soleus.at embeds, so dates, slots and the booking itself are identical. */
-const BOOKING_URL = "https://publicbooking.soleus.at/public-booking?embed=1";
-
 function Page() {
-  const frame = useRef<HTMLIFrameElement>(null);
-
-  // The widget reports its content height so the iframe never needs its own scrollbar.
-  useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.type === "soleus-booking-resize" && typeof e.data.height === "number" && frame.current) {
-        frame.current.style.height = `${e.data.height}px`;
-      }
-    };
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-primary text-primary-foreground">
       <video
@@ -61,17 +45,11 @@ function Page() {
               <span className="text-primary-foreground/70">Probetraining buchen</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed font-light text-primary-foreground/75 md:text-base">
-              Such dir dein Wunschdatum samt Uhrzeit aus. Wir bestätigen telefonisch innerhalb von 24 Stunden.
+              Such dir dein Wunschdatum samt Uhrzeit aus.
             </p>
           </div>
 
-          <iframe
-            ref={frame}
-            src={BOOKING_URL}
-            title="Probetraining buchen"
-            scrolling="no"
-            className="mx-auto mt-14 block h-[1400px] w-full max-w-[1024px] overflow-hidden border-0 bg-transparent sm:h-[1100px] md:h-[900px] lg:h-[820px]"
-          />
+          <TrialBooking />
         </main>
       </div>
     </div>
