@@ -16,6 +16,7 @@ export type OnboardingData = {
   goals: string[];
   otherGoals: string;
   addons: string[];
+  familyFriends: boolean;
   signature: string;
   acceptTerms: boolean;
   acceptPrivacy: boolean;
@@ -40,6 +41,7 @@ export const emptyOnboarding = (planId: string): OnboardingData => ({
   goals: [],
   otherGoals: "",
   addons: [],
+  familyFriends: false,
   signature: "",
   acceptTerms: false,
   acceptPrivacy: false,

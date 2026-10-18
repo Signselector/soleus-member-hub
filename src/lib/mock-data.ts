@@ -91,3 +91,6 @@ export const mockAddons = [
 ] as const;
 
 export const mockGoals = ["Muskelaufbau", "Nachhaltiges Abnehmen", "Fitness steigern", "Rehabilitation", "Beweglichkeit verbessern"] as const;
+
+/** Family & Friends add-on, as offered on soleus.at (bookable on top of any plan). */
+export const mockFamilyFriends = { price: 15, label: "Family & Friends", guests: 2 } as const;

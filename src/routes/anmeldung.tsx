@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, ShoppingBag, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShoppingBag, Users, X } from "lucide-react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SignaturePad } from "@/components/onboarding/SignaturePad";
 import { Button, Eyebrow, Field } from "@/components/ui-soleus/primitives";
 import { Checkbox } from "@/components/ui/checkbox";
 import { eur, emptyOnboarding, startGoCardlessCheckout, type OnboardingData } from "@/lib/onboarding";
-import { mockAddons, mockGoals, mockPlans } from "@/lib/mock-data";
+import { mockAddons, mockFamilyFriends, mockGoals, mockPlans } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/anmeldung")({
@@ -30,6 +30,7 @@ const STEPS = [
   { title: "Gesundheit", intro: "Diese Angaben helfen uns, dein Training sicher zu gestalten." },
   { title: "Deine Ziele", intro: "Was möchtest du erreichen?" },
   { title: "Zusatzleistungen", intro: "Optional zu deiner Mitgliedschaft." },
+  { title: "Family & Friends", intro: "Bringe deine Liebsten mit ins Studio." },
   { title: "Unterschrift", intro: "Bitte bestätige deine Angaben mit deiner Unterschrift." },
   { title: "Bestellung abschließen", intro: "Prüfe deine Auswahl und schließe die Bestellung ab." },
 ] as const;
@@ -98,7 +99,7 @@ function Signup() {
       if (d.hasHealthIssues === "yes" && !d.healthDetails.trim()) return setError("Bitte beschreibe deine gesundheitlichen Einschränkungen kurz.");
       if (d.takesMedication === "yes" && !d.medicationDetails.trim()) return setError("Bitte nenne die Medikamente, die du regelmäßig einnimmst.");
     }
-    if (step === 5 && !d.signature) return setError("Bitte unterschreibe im Feld.");
+    if (step === 6 && !d.signature) return setError("Bitte unterschreibe im Feld.");
     if (!last) return go(step + 1);
     setBusy(true);
     const { redirectUrl } = await startGoCardlessCheckout(d);
@@ -231,9 +232,56 @@ function Signup() {
               </>
             )}
 
-            {step === 5 && <SignaturePad value={d.signature} onChange={(v) => set("signature", v)} />}
+            {step === 5 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => set("familyFriends", !d.familyFriends)}
+                  aria-pressed={d.familyFriends}
+                  className={cn(
+                    "w-full rounded-2xl p-6 text-left transition-all duration-500 md:p-8",
+                    "bg-[#211d1b] text-[#f7f5f1] shadow-[0_18px_40px_-18px_rgba(33,29,27,0.45)]",
+                    d.familyFriends ? "ring-2 ring-[#e8dfcd] ring-offset-4 ring-offset-[#f7f5f1]" : "opacity-95 hover:opacity-100",
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/12">
+                      <Users className="h-4 w-4" strokeWidth={1.75} />
+                    </span>
+                    <span className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-[#f7f5f1]/75">Add-on · Zu jedem Abo</span>
+                  </span>
+                  <span className="mt-6 block text-2xl font-medium tracking-tight md:text-3xl">Family &amp; Friends</span>
+                  <span className="mt-3 block max-w-md text-base leading-relaxed font-light text-[#f7f5f1]/80">
+                    Bringe jedes Mal bis zu {mockFamilyFriends.guests} Personen kostenlos mit ins Studio.
+                  </span>
+                  <span className="mt-8 flex items-end justify-between gap-6">
+                    <span className="flex items-baseline gap-2">
+                      <span className="text-5xl font-light tracking-tight">+{mockFamilyFriends.price}</span>
+                      <span className="text-sm font-light text-[#f7f5f1]/75">€ / Monat</span>
+                    </span>
+                    <span className="text-[0.6875rem] font-bold uppercase tracking-[0.2em]">{d.familyFriends ? "Hinzugefügt ✓" : "Hinzufügen"}</span>
+                  </span>
+                </button>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Die beiden Begleitpersonen können Erwachsene und/oder Kinder sein. Sie dürfen das Studio nur gemeinsam mit dir nutzen. Als Mitglied haftest du für
+                  Schäden, die durch deine Begleitung entstehen.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    set("familyFriends", false);
+                    go(step + 1);
+                  }}
+                  className="flex h-14 w-full items-center justify-center gap-3 rounded-md bg-[#3b2a20] text-base text-[#f7f5f1] transition-colors hover:bg-[#3b2a20]/90"
+                >
+                  <X className="h-4 w-4" strokeWidth={1.5} /> Kein Family &amp; Friends
+                </button>
+              </>
+            )}
 
-            {step === 6 && (
+            {step === 6 && <SignaturePad value={d.signature} onChange={(v) => set("signature", v)} />}
+
+            {step === 7 && (
               <>
                 <dl className="divide-y divide-border border-y border-border text-base">
                   <div className="flex items-baseline justify-between gap-6 py-4">
@@ -242,6 +290,18 @@ function Signup() {
                     </dt>
                     <dd className="tabular-nums">{plan.price} € / Monat</dd>
                   </div>
+                  {d.familyFriends && (
+                    <div className="flex items-baseline justify-between gap-6 py-4">
+                      <dt className="text-muted-foreground">Family &amp; Friends (bis zu {mockFamilyFriends.guests} Personen)</dt>
+                      <dd className="tabular-nums">+{eur(mockFamilyFriends.price)} / Monat</dd>
+                    </div>
+                  )}
+                  {d.familyFriends && (
+                    <div className="flex items-baseline justify-between gap-6 py-4 font-medium">
+                      <dt>Monatlich gesamt</dt>
+                      <dd className="tabular-nums">{eur(Number(plan.price.replace(",", ".")) + mockFamilyFriends.price)}</dd>
+                    </div>
+                  )}
                   {mockAddons
                     .filter((a) => d.addons.includes(a.id))
                     .map((a) => (
