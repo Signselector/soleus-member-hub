@@ -1,0 +1,46 @@
+import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
+import { Eyebrow, Wordmark } from "@/components/ui-soleus/primitives";
+
+export function AuthLayout({
+  eyebrow,
+  title,
+  intro,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid min-h-screen bg-background md:grid-cols-2">
+      <aside className="hidden flex-col justify-between bg-sand p-14 md:flex">
+        <Wordmark />
+        <div>
+          <p className="max-w-sm text-4xl leading-[1.15] font-light tracking-tight text-foreground lg:text-5xl">
+            Dein Raum.
+            <br />
+            Deine Zeit.
+            <br />
+            Dein Training.
+          </p>
+          <p className="mt-8 eyebrow">Private Gym · Österreich</p>
+        </div>
+        <p className="eyebrow">© SOLEUS</p>
+      </aside>
+
+      <section className="flex flex-col px-6 py-8 md:px-16 md:py-14">
+        <Link to="/login" className="md:hidden" aria-label="SOLEUS">
+          <Wordmark />
+        </Link>
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-14 animate-rise">
+          <Eyebrow>{eyebrow}</Eyebrow>
+          <h1 className="mt-4 text-4xl leading-tight font-light tracking-tight md:text-5xl">{title}</h1>
+          {intro && <p className="mt-4 text-base leading-relaxed text-muted-foreground">{intro}</p>}
+          <div className="mt-12">{children}</div>
+        </div>
+      </section>
+    </div>
+  );
+}
