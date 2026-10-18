@@ -43,6 +43,11 @@ export function MockStateSwitcher() {
             <Opt active={s.user === "new"} onClick={() => goUser("new")}>Neu</Opt>
             <Opt active={s.user === "member"} onClick={() => goUser("member")}>Member</Opt>
           </div>
+          <p className="eyebrow mt-4 mb-1.5">Rolle</p>
+          <div className="flex border border-border">
+            <Opt active={s.role === "customer"} onClick={() => { s.setRole("customer"); navigate({ to: "/home" }); }}>Kunde</Opt>
+            <Opt active={s.role === "admin"} onClick={() => { s.setRole("admin"); navigate({ to: "/admin" }); }}>Admin</Opt>
+          </div>
           <p className="eyebrow mt-4 mb-1.5">Buchung</p>
           <div className="flex border border-border">
             <Opt active={s.booking === "upcoming"} onClick={() => s.setBooking("upcoming")}>Fall A · Session</Opt>

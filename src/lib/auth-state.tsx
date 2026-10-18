@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type UserState = "guest" | "new" | "member";
+export type Role = "customer" | "admin";
 export type BookingCase = "upcoming" | "none";
 export type AccessCase = "pending" | "active";
 
@@ -10,6 +11,11 @@ type Ctx = {
   access: AccessCase;
   /** Timestamp (ms) of the sign-up, used for the 24h wait before the first trial booking. */
   registeredAt: number | null;
+  /** Role of the signed-in user. Mock only: real authorization must be enforced by the backend. */
+  role: Role;
+  /** False until the persisted state has been read, so guards do not flash "no access". */
+  ready: boolean;
+  setRole: (r: Role) => void;
   setUser: (u: UserState) => void;
   setBooking: (b: BookingCase) => void;
   setAccess: (a: AccessCase) => void;
@@ -21,6 +27,8 @@ const KEY = "soleus-mock-state";
 export function AuthStateProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<UserState>("guest");
   const [registeredAt, setRegisteredAt] = useState<number | null>(null);
+  const [role, setRole] = useState<Role>("customer");
+  const [ready, setReady] = useState(false);
   const [booking, setBooking] = useState<BookingCase>("upcoming");
   const [access, setAccess] = useState<AccessCase>("pending");
 
@@ -33,15 +41,18 @@ export function AuthStateProvider({ children }: { children: ReactNode }) {
         if (typeof s.registeredAt === "number") setRegisteredAt(s.registeredAt);
         if (s.booking) setBooking(s.booking);
         if (s.access) setAccess(s.access);
+        if (s.role === "admin" || s.role === "customer") setRole(s.role);
       }
     } catch {
       /* ignore */
     }
+    setReady(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify({ user, booking, access, registeredAt }));
-  }, [user, booking, access, registeredAt]);
+    if (!ready) return;
+    localStorage.setItem(KEY, JSON.stringify({ user, booking, access, registeredAt, role }));
+  }, [ready, user, booking, access, registeredAt, role]);
 
   const setUser = (u: UserState) => {
     if (u === "new") setRegisteredAt(Date.now());
@@ -49,7 +60,7 @@ export function AuthStateProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthCtx.Provider value={{ user, booking, access, registeredAt, setUser, setBooking, setAccess }}>
+    <AuthCtx.Provider value={{ user, booking, access, registeredAt, role, ready, setRole, setUser, setBooking, setAccess }}>
       {children}
     </AuthCtx.Provider>
   );

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { CalendarPlus, Home, ListChecks, CreditCard, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Wordmark } from "@/components/ui-soleus/primitives";
+import { useAuthState } from "@/lib/auth-state";
 
 const nav = [
   { to: "/home", label: "Home", icon: Home },
@@ -12,6 +13,7 @@ const nav = [
 ] as const;
 
 export function MemberShell({ children }: { children: ReactNode }) {
+  const { role } = useAuthState();
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 glass-light border-x-0 border-t-0 border-b-border">
@@ -30,6 +32,11 @@ export function MemberShell({ children }: { children: ReactNode }) {
                 {n.label}
               </Link>
             ))}
+            {role === "admin" && (
+              <Link to="/admin" className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-foreground underline underline-offset-8">
+                Admin
+              </Link>
+            )}
           </nav>
           <Link
             to="/profil"

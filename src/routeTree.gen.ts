@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AnmeldungRouteImport } from './routes/anmeldung'
 import { Route as BuchenRouteImport } from './routes/buchen'
 import { Route as BuchungenRouteImport } from './routes/buchungen'
@@ -25,10 +26,36 @@ import { Route as ProfilRouteImport } from './routes/profil'
 import { Route as RegistrierenRouteImport } from './routes/registrieren'
 import { Route as WillkommenRouteImport } from './routes/willkommen'
 import { Route as ZahlungRouteImport } from './routes/zahlung'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAbosRouteImport } from './routes/admin.abos'
+import { Route as AdminAdminVerwaltungRouteImport } from './routes/admin.admin-verwaltung'
+import { Route as AdminAktivitaetsprotokollRouteImport } from './routes/admin.aktivitaetsprotokoll'
+import { Route as AdminBackupsRouteImport } from './routes/admin.backups'
+import { Route as AdminBuchungenRouteImport } from './routes/admin.buchungen'
+import { Route as AdminFamilyFriendsRouteImport } from './routes/admin.family-friends'
+import { Route as AdminGebuehrenRouteImport } from './routes/admin.gebuehren'
+import { Route as AdminLandingpageEmbedRouteImport } from './routes/admin.landingpage-embed'
+import { Route as AdminProblemeRouteImport } from './routes/admin.probleme'
+import { Route as AdminStundenAnfragenRouteImport } from './routes/admin.stunden-anfragen'
+import { Route as AdminStundenblockHistoryRouteImport } from './routes/admin.stundenblock-history'
+import { Route as AdminSupportViewRouteImport } from './routes/admin.support-view'
+import { Route as AdminTrainerRouteImport } from './routes/admin.trainer'
+import { Route as AdminTrainingsTagebuchRouteImport } from './routes/admin.trainings-tagebuch'
+import { Route as AdminZeitplanRouteImport } from './routes/admin.zeitplan'
+import { Route as AdminZeitplanV2RouteImport } from './routes/admin.zeitplan-v2'
+import { Route as AdminZusatzleistungenRouteImport } from './routes/admin.zusatzleistungen'
+import { Route as AdminZutrittRouteImport } from './routes/admin.zutritt'
+import { Route as AdminKundenIndexRouteImport } from './routes/admin.kunden.index'
+import { Route as AdminKundenIdRouteImport } from './routes/admin.kunden.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnmeldungRoute = AnmeldungRouteImport.update({
@@ -106,9 +133,117 @@ const ZahlungRoute = ZahlungRouteImport.update({
   path: '/zahlung',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAbosRoute = AdminAbosRouteImport.update({
+  id: '/abos',
+  path: '/abos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminVerwaltungRoute = AdminAdminVerwaltungRouteImport.update({
+  id: '/admin-verwaltung',
+  path: '/admin-verwaltung',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAktivitaetsprotokollRoute =
+  AdminAktivitaetsprotokollRouteImport.update({
+    id: '/aktivitaetsprotokoll',
+    path: '/aktivitaetsprotokoll',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminBackupsRoute = AdminBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBuchungenRoute = AdminBuchungenRouteImport.update({
+  id: '/buchungen',
+  path: '/buchungen',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFamilyFriendsRoute = AdminFamilyFriendsRouteImport.update({
+  id: '/family-friends',
+  path: '/family-friends',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGebuehrenRoute = AdminGebuehrenRouteImport.update({
+  id: '/gebuehren',
+  path: '/gebuehren',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLandingpageEmbedRoute = AdminLandingpageEmbedRouteImport.update({
+  id: '/landingpage-embed',
+  path: '/landingpage-embed',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProblemeRoute = AdminProblemeRouteImport.update({
+  id: '/probleme',
+  path: '/probleme',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStundenAnfragenRoute = AdminStundenAnfragenRouteImport.update({
+  id: '/stunden-anfragen',
+  path: '/stunden-anfragen',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStundenblockHistoryRoute =
+  AdminStundenblockHistoryRouteImport.update({
+    id: '/stundenblock-history',
+    path: '/stundenblock-history',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminSupportViewRoute = AdminSupportViewRouteImport.update({
+  id: '/support-view',
+  path: '/support-view',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTrainerRoute = AdminTrainerRouteImport.update({
+  id: '/trainer',
+  path: '/trainer',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTrainingsTagebuchRoute = AdminTrainingsTagebuchRouteImport.update({
+  id: '/trainings-tagebuch',
+  path: '/trainings-tagebuch',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminZeitplanRoute = AdminZeitplanRouteImport.update({
+  id: '/zeitplan',
+  path: '/zeitplan',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminZeitplanV2Route = AdminZeitplanV2RouteImport.update({
+  id: '/zeitplan-v2',
+  path: '/zeitplan-v2',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminZusatzleistungenRoute = AdminZusatzleistungenRouteImport.update({
+  id: '/zusatzleistungen',
+  path: '/zusatzleistungen',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminZutrittRoute = AdminZutrittRouteImport.update({
+  id: '/zutritt',
+  path: '/zutritt',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKundenIndexRoute = AdminKundenIndexRouteImport.update({
+  id: '/kunden/',
+  path: '/kunden/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKundenIdRoute = AdminKundenIdRouteImport.update({
+  id: '/kunden/$id',
+  path: '/kunden/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/anmeldung': typeof AnmeldungRoute
   '/buchen': typeof BuchenRoute
   '/buchungen': typeof BuchungenRoute
@@ -124,6 +259,27 @@ export interface FileRoutesByFullPath {
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
   '/zahlung': typeof ZahlungRoute
+  '/admin/abos': typeof AdminAbosRoute
+  '/admin/admin-verwaltung': typeof AdminAdminVerwaltungRoute
+  '/admin/aktivitaetsprotokoll': typeof AdminAktivitaetsprotokollRoute
+  '/admin/backups': typeof AdminBackupsRoute
+  '/admin/buchungen': typeof AdminBuchungenRoute
+  '/admin/family-friends': typeof AdminFamilyFriendsRoute
+  '/admin/gebuehren': typeof AdminGebuehrenRoute
+  '/admin/landingpage-embed': typeof AdminLandingpageEmbedRoute
+  '/admin/probleme': typeof AdminProblemeRoute
+  '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
+  '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
+  '/admin/support-view': typeof AdminSupportViewRoute
+  '/admin/trainer': typeof AdminTrainerRoute
+  '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
+  '/admin/zeitplan': typeof AdminZeitplanRoute
+  '/admin/zeitplan-v2': typeof AdminZeitplanV2Route
+  '/admin/zusatzleistungen': typeof AdminZusatzleistungenRoute
+  '/admin/zutritt': typeof AdminZutrittRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/kunden/': typeof AdminKundenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,10 +298,32 @@ export interface FileRoutesByTo {
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
   '/zahlung': typeof ZahlungRoute
+  '/admin/abos': typeof AdminAbosRoute
+  '/admin/admin-verwaltung': typeof AdminAdminVerwaltungRoute
+  '/admin/aktivitaetsprotokoll': typeof AdminAktivitaetsprotokollRoute
+  '/admin/backups': typeof AdminBackupsRoute
+  '/admin/buchungen': typeof AdminBuchungenRoute
+  '/admin/family-friends': typeof AdminFamilyFriendsRoute
+  '/admin/gebuehren': typeof AdminGebuehrenRoute
+  '/admin/landingpage-embed': typeof AdminLandingpageEmbedRoute
+  '/admin/probleme': typeof AdminProblemeRoute
+  '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
+  '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
+  '/admin/support-view': typeof AdminSupportViewRoute
+  '/admin/trainer': typeof AdminTrainerRoute
+  '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
+  '/admin/zeitplan': typeof AdminZeitplanRoute
+  '/admin/zeitplan-v2': typeof AdminZeitplanV2Route
+  '/admin/zusatzleistungen': typeof AdminZusatzleistungenRoute
+  '/admin/zutritt': typeof AdminZutrittRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/kunden': typeof AdminKundenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/anmeldung': typeof AnmeldungRoute
   '/buchen': typeof BuchenRoute
   '/buchungen': typeof BuchungenRoute
@@ -161,11 +339,33 @@ export interface FileRoutesById {
   '/registrieren': typeof RegistrierenRoute
   '/willkommen': typeof WillkommenRoute
   '/zahlung': typeof ZahlungRoute
+  '/admin/abos': typeof AdminAbosRoute
+  '/admin/admin-verwaltung': typeof AdminAdminVerwaltungRoute
+  '/admin/aktivitaetsprotokoll': typeof AdminAktivitaetsprotokollRoute
+  '/admin/backups': typeof AdminBackupsRoute
+  '/admin/buchungen': typeof AdminBuchungenRoute
+  '/admin/family-friends': typeof AdminFamilyFriendsRoute
+  '/admin/gebuehren': typeof AdminGebuehrenRoute
+  '/admin/landingpage-embed': typeof AdminLandingpageEmbedRoute
+  '/admin/probleme': typeof AdminProblemeRoute
+  '/admin/stunden-anfragen': typeof AdminStundenAnfragenRoute
+  '/admin/stundenblock-history': typeof AdminStundenblockHistoryRoute
+  '/admin/support-view': typeof AdminSupportViewRoute
+  '/admin/trainer': typeof AdminTrainerRoute
+  '/admin/trainings-tagebuch': typeof AdminTrainingsTagebuchRoute
+  '/admin/zeitplan': typeof AdminZeitplanRoute
+  '/admin/zeitplan-v2': typeof AdminZeitplanV2Route
+  '/admin/zusatzleistungen': typeof AdminZusatzleistungenRoute
+  '/admin/zutritt': typeof AdminZutrittRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/kunden/$id': typeof AdminKundenIdRoute
+  '/admin/kunden/': typeof AdminKundenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/anmeldung'
     | '/buchen'
     | '/buchungen'
@@ -181,6 +381,27 @@ export interface FileRouteTypes {
     | '/registrieren'
     | '/willkommen'
     | '/zahlung'
+    | '/admin/abos'
+    | '/admin/admin-verwaltung'
+    | '/admin/aktivitaetsprotokoll'
+    | '/admin/backups'
+    | '/admin/buchungen'
+    | '/admin/family-friends'
+    | '/admin/gebuehren'
+    | '/admin/landingpage-embed'
+    | '/admin/probleme'
+    | '/admin/stunden-anfragen'
+    | '/admin/stundenblock-history'
+    | '/admin/support-view'
+    | '/admin/trainer'
+    | '/admin/trainings-tagebuch'
+    | '/admin/zeitplan'
+    | '/admin/zeitplan-v2'
+    | '/admin/zusatzleistungen'
+    | '/admin/zutritt'
+    | '/admin/'
+    | '/admin/kunden/$id'
+    | '/admin/kunden/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,9 +420,31 @@ export interface FileRouteTypes {
     | '/registrieren'
     | '/willkommen'
     | '/zahlung'
+    | '/admin/abos'
+    | '/admin/admin-verwaltung'
+    | '/admin/aktivitaetsprotokoll'
+    | '/admin/backups'
+    | '/admin/buchungen'
+    | '/admin/family-friends'
+    | '/admin/gebuehren'
+    | '/admin/landingpage-embed'
+    | '/admin/probleme'
+    | '/admin/stunden-anfragen'
+    | '/admin/stundenblock-history'
+    | '/admin/support-view'
+    | '/admin/trainer'
+    | '/admin/trainings-tagebuch'
+    | '/admin/zeitplan'
+    | '/admin/zeitplan-v2'
+    | '/admin/zusatzleistungen'
+    | '/admin/zutritt'
+    | '/admin'
+    | '/admin/kunden/$id'
+    | '/admin/kunden'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/anmeldung'
     | '/buchen'
     | '/buchungen'
@@ -217,10 +460,32 @@ export interface FileRouteTypes {
     | '/registrieren'
     | '/willkommen'
     | '/zahlung'
+    | '/admin/abos'
+    | '/admin/admin-verwaltung'
+    | '/admin/aktivitaetsprotokoll'
+    | '/admin/backups'
+    | '/admin/buchungen'
+    | '/admin/family-friends'
+    | '/admin/gebuehren'
+    | '/admin/landingpage-embed'
+    | '/admin/probleme'
+    | '/admin/stunden-anfragen'
+    | '/admin/stundenblock-history'
+    | '/admin/support-view'
+    | '/admin/trainer'
+    | '/admin/trainings-tagebuch'
+    | '/admin/zeitplan'
+    | '/admin/zeitplan-v2'
+    | '/admin/zusatzleistungen'
+    | '/admin/zutritt'
+    | '/admin/'
+    | '/admin/kunden/$id'
+    | '/admin/kunden/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AnmeldungRoute: typeof AnmeldungRoute
   BuchenRoute: typeof BuchenRoute
   BuchungenRoute: typeof BuchungenRoute
@@ -245,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anmeldung': {
@@ -352,11 +624,209 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZahlungRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/abos': {
+      id: '/admin/abos'
+      path: '/abos'
+      fullPath: '/admin/abos'
+      preLoaderRoute: typeof AdminAbosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/admin-verwaltung': {
+      id: '/admin/admin-verwaltung'
+      path: '/admin-verwaltung'
+      fullPath: '/admin/admin-verwaltung'
+      preLoaderRoute: typeof AdminAdminVerwaltungRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/aktivitaetsprotokoll': {
+      id: '/admin/aktivitaetsprotokoll'
+      path: '/aktivitaetsprotokoll'
+      fullPath: '/admin/aktivitaetsprotokoll'
+      preLoaderRoute: typeof AdminAktivitaetsprotokollRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/backups': {
+      id: '/admin/backups'
+      path: '/backups'
+      fullPath: '/admin/backups'
+      preLoaderRoute: typeof AdminBackupsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/buchungen': {
+      id: '/admin/buchungen'
+      path: '/buchungen'
+      fullPath: '/admin/buchungen'
+      preLoaderRoute: typeof AdminBuchungenRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/family-friends': {
+      id: '/admin/family-friends'
+      path: '/family-friends'
+      fullPath: '/admin/family-friends'
+      preLoaderRoute: typeof AdminFamilyFriendsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/gebuehren': {
+      id: '/admin/gebuehren'
+      path: '/gebuehren'
+      fullPath: '/admin/gebuehren'
+      preLoaderRoute: typeof AdminGebuehrenRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/landingpage-embed': {
+      id: '/admin/landingpage-embed'
+      path: '/landingpage-embed'
+      fullPath: '/admin/landingpage-embed'
+      preLoaderRoute: typeof AdminLandingpageEmbedRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/probleme': {
+      id: '/admin/probleme'
+      path: '/probleme'
+      fullPath: '/admin/probleme'
+      preLoaderRoute: typeof AdminProblemeRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/stunden-anfragen': {
+      id: '/admin/stunden-anfragen'
+      path: '/stunden-anfragen'
+      fullPath: '/admin/stunden-anfragen'
+      preLoaderRoute: typeof AdminStundenAnfragenRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/stundenblock-history': {
+      id: '/admin/stundenblock-history'
+      path: '/stundenblock-history'
+      fullPath: '/admin/stundenblock-history'
+      preLoaderRoute: typeof AdminStundenblockHistoryRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support-view': {
+      id: '/admin/support-view'
+      path: '/support-view'
+      fullPath: '/admin/support-view'
+      preLoaderRoute: typeof AdminSupportViewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/trainer': {
+      id: '/admin/trainer'
+      path: '/trainer'
+      fullPath: '/admin/trainer'
+      preLoaderRoute: typeof AdminTrainerRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/trainings-tagebuch': {
+      id: '/admin/trainings-tagebuch'
+      path: '/trainings-tagebuch'
+      fullPath: '/admin/trainings-tagebuch'
+      preLoaderRoute: typeof AdminTrainingsTagebuchRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/zeitplan': {
+      id: '/admin/zeitplan'
+      path: '/zeitplan'
+      fullPath: '/admin/zeitplan'
+      preLoaderRoute: typeof AdminZeitplanRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/zeitplan-v2': {
+      id: '/admin/zeitplan-v2'
+      path: '/zeitplan-v2'
+      fullPath: '/admin/zeitplan-v2'
+      preLoaderRoute: typeof AdminZeitplanV2RouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/zusatzleistungen': {
+      id: '/admin/zusatzleistungen'
+      path: '/zusatzleistungen'
+      fullPath: '/admin/zusatzleistungen'
+      preLoaderRoute: typeof AdminZusatzleistungenRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/zutritt': {
+      id: '/admin/zutritt'
+      path: '/zutritt'
+      fullPath: '/admin/zutritt'
+      preLoaderRoute: typeof AdminZutrittRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/kunden/': {
+      id: '/admin/kunden/'
+      path: '/kunden'
+      fullPath: '/admin/kunden/'
+      preLoaderRoute: typeof AdminKundenIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/kunden/$id': {
+      id: '/admin/kunden/$id'
+      path: '/kunden/$id'
+      fullPath: '/admin/kunden/$id'
+      preLoaderRoute: typeof AdminKundenIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAbosRoute: typeof AdminAbosRoute
+  AdminAdminVerwaltungRoute: typeof AdminAdminVerwaltungRoute
+  AdminAktivitaetsprotokollRoute: typeof AdminAktivitaetsprotokollRoute
+  AdminBackupsRoute: typeof AdminBackupsRoute
+  AdminBuchungenRoute: typeof AdminBuchungenRoute
+  AdminFamilyFriendsRoute: typeof AdminFamilyFriendsRoute
+  AdminGebuehrenRoute: typeof AdminGebuehrenRoute
+  AdminLandingpageEmbedRoute: typeof AdminLandingpageEmbedRoute
+  AdminProblemeRoute: typeof AdminProblemeRoute
+  AdminStundenAnfragenRoute: typeof AdminStundenAnfragenRoute
+  AdminStundenblockHistoryRoute: typeof AdminStundenblockHistoryRoute
+  AdminSupportViewRoute: typeof AdminSupportViewRoute
+  AdminTrainerRoute: typeof AdminTrainerRoute
+  AdminTrainingsTagebuchRoute: typeof AdminTrainingsTagebuchRoute
+  AdminZeitplanRoute: typeof AdminZeitplanRoute
+  AdminZeitplanV2Route: typeof AdminZeitplanV2Route
+  AdminZusatzleistungenRoute: typeof AdminZusatzleistungenRoute
+  AdminZutrittRoute: typeof AdminZutrittRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminKundenIdRoute: typeof AdminKundenIdRoute
+  AdminKundenIndexRoute: typeof AdminKundenIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAbosRoute: AdminAbosRoute,
+  AdminAdminVerwaltungRoute: AdminAdminVerwaltungRoute,
+  AdminAktivitaetsprotokollRoute: AdminAktivitaetsprotokollRoute,
+  AdminBackupsRoute: AdminBackupsRoute,
+  AdminBuchungenRoute: AdminBuchungenRoute,
+  AdminFamilyFriendsRoute: AdminFamilyFriendsRoute,
+  AdminGebuehrenRoute: AdminGebuehrenRoute,
+  AdminLandingpageEmbedRoute: AdminLandingpageEmbedRoute,
+  AdminProblemeRoute: AdminProblemeRoute,
+  AdminStundenAnfragenRoute: AdminStundenAnfragenRoute,
+  AdminStundenblockHistoryRoute: AdminStundenblockHistoryRoute,
+  AdminSupportViewRoute: AdminSupportViewRoute,
+  AdminTrainerRoute: AdminTrainerRoute,
+  AdminTrainingsTagebuchRoute: AdminTrainingsTagebuchRoute,
+  AdminZeitplanRoute: AdminZeitplanRoute,
+  AdminZeitplanV2Route: AdminZeitplanV2Route,
+  AdminZusatzleistungenRoute: AdminZusatzleistungenRoute,
+  AdminZutrittRoute: AdminZutrittRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminKundenIdRoute: AdminKundenIdRoute,
+  AdminKundenIndexRoute: AdminKundenIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AnmeldungRoute: AnmeldungRoute,
   BuchenRoute: BuchenRoute,
   BuchungenRoute: BuchungenRoute,
