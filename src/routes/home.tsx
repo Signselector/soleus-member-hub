@@ -73,7 +73,7 @@ function Home() {
               </div>
             ) : (
               <div className="mt-10">
-                <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — — — —</p>
+                <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">
                   Zutrittscode ab {mockNextSession.accessAvailableFrom} verfügbar.
                 </p>

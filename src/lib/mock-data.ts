@@ -26,7 +26,7 @@ export const mockNextSession = {
   time: "18:00 — 19:00",
   location: "Private Gym",
   accessAvailableFrom: "17:30",
-  accessCode: "4 8 2 7 1 9",
+  accessCode: "4 8 2 7",
 };
 
 export const mockUpcomingBookings: Booking[] = [
