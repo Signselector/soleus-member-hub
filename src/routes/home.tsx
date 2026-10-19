@@ -83,18 +83,18 @@ function Home() {
             </h1>
             <p className="mt-6 text-sm uppercase tracking-[0.2em]">{showSession.location}</p>
 
-            {t && t.phase === "live" && (
-              <div className="mt-8 max-w-sm" role="timer" aria-label="Session-Timer">
-                <Eyebrow>Session-Timer</Eyebrow>
-                <p className="mt-3 text-3xl font-light tabular-nums tracking-tight">
-                  <span className="text-base text-muted-foreground">Noch </span>{formatDuration(t.toEnd)}
-                </p>
-                <div className="mt-3 h-px w-full bg-border" aria-hidden>
-                  <div className="h-px bg-foreground transition-[width] duration-1000" style={{ width: `${(1 - t.progress) * 100}%` }} />
-                </div>
+            <div className="mt-8 max-w-sm" role="timer" aria-label="Session-Timer">
+              <Eyebrow>Session-Timer</Eyebrow>
+              <p className={`mt-3 text-3xl font-light tabular-nums tracking-tight ${t?.phase === "live" ? "" : "text-muted-foreground"}`}>
+                {formatDuration(t?.phase === "live" ? t.toEnd : 0)}
+              </p>
+              <div className="mt-3 h-px w-full bg-border" aria-hidden>
+                <div className="h-px bg-foreground transition-[width] duration-1000" style={{ width: `${t?.phase === "live" ? (1 - t.progress) * 100 : 0}%` }} />
               </div>
-            )}
-            {t && t.phase === "over" && <p className="mt-8 text-sm text-muted-foreground">Session beendet.</p>}
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t?.phase === "live" ? "Verbleibende Trainingszeit" : t?.phase === "over" ? "Session beendet" : "Startet mit Beginn deiner Session"}
+              </p>
+            </div>
             <ButtonLink to="/buchungen" className="mt-10 w-full sm:w-auto">Session ansehen</ButtonLink>
           </div>
           <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 text-primary-foreground md:p-10">
@@ -105,15 +105,7 @@ function Home() {
             {keyValid && myKey ? (
               <div className="mt-10">
                 <p className="text-4xl font-light tracking-[0.15em] tabular-nums md:text-5xl">{myKey.code.split("").join(" ")}</p>
-                <p className="mt-4 text-sm text-primary-foreground/80">Dein Zutrittscode ist aktiv. Gib ihn am Eingang ein.</p>
-                <div className="mt-6 border-t border-primary-foreground/20 pt-5" role="timer" aria-label="Gültigkeit des Zutrittscodes">
-                  <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-primary-foreground/70">Code gültig noch</p>
-                  <p className="mt-2 text-2xl font-light tabular-nums">{formatDuration(keyLeft)}</p>
-                  <div className="mt-3 h-px w-full bg-primary-foreground/20" aria-hidden>
-                    <div className="h-px bg-primary-foreground transition-[width] duration-1000" style={{ width: `${(keyLeft / KEY_VALID_MS) * 100}%` }} />
-                  </div>
-                  <p className="mt-2 text-xs text-primary-foreground/70">Erzeugt um {hm(new Date(myKey.generatedAt))} Uhr · 1 Stunde gültig</p>
-                </div>
+                <p className="mt-4 text-sm text-primary-foreground/80">Dein Zutrittscode ist aktiv. Bitte am Eingang eingeben.</p>
               </div>
             ) : canGenerate ? (
               <div className="mt-10">
@@ -129,10 +121,20 @@ function Home() {
               <div className="mt-10">
                 <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">
-                  {t && t.codeExpired ? "Die Session ist beendet." : `Zutrittscode ab ${t ? hm(t.codeFrom) : mockNextSession.accessAvailableFrom} erzeugbar.`}
+                  {t && t.codeExpired ? "Die Session ist beendet." : `Dein Zutrittscode steht ab ${t ? hm(t.codeFrom) : mockNextSession.accessAvailableFrom} Uhr zur Verfügung.`}
                 </p>
               </div>
             )}
+            <div className="mt-8 border-t border-primary-foreground/20 pt-5" role="timer" aria-label="Gültigkeit des Zutrittscodes">
+              <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-primary-foreground/70">Code-Gültigkeit</p>
+              <p className={`mt-2 text-2xl font-light tabular-nums ${keyValid ? "" : "text-primary-foreground/50"}`}>{formatDuration(keyValid ? keyLeft : 0)}</p>
+              <div className="mt-3 h-px w-full bg-primary-foreground/20" aria-hidden>
+                <div className="h-px bg-primary-foreground transition-[width] duration-1000" style={{ width: `${keyValid ? (keyLeft / KEY_VALID_MS) * 100 : 0}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-primary-foreground/70">
+                {keyValid && myKey ? `Erzeugt um ${hm(new Date(myKey.generatedAt))} Uhr · 1 Stunde gültig` : "Die Gültigkeit beginnt mit dem Erzeugen des Codes."}
+              </p>
+            </div>
           </div>
         </section>
       ) : (
