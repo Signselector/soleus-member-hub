@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, KeyRound } from "lucide-react";
 import { MemberShell } from "@/components/layout/MemberShell";
 import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
 import { useAuthState } from "@/lib/auth-state";
-import { mockMember, mockNextSession, mockUpcomingBookings } from "@/lib/mock-data";
+import { useMemberBookings } from "@/lib/member-bookings";
+import { mockMember, mockNextSession as mockNextSessionBase, mockUpcomingBookings } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -26,8 +28,22 @@ const quick = [
 ] as const;
 
 function Home() {
-  const { booking, access } = useAuthState();
+  const { booking: mockBooking, access } = useAuthState();
   const m = mockMember;
+  const mine = useMemberBookings();
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+  const own = now ? mine.filter((b) => new Date(b.start) > now) : [];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const fmt = (iso: string) => {
+    const d = new Date(iso);
+    return { dateLabel: d.toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "short" }), time: `${pad(d.getHours())}:00 — ${pad(d.getHours() + 1)}:00` };
+  };
+  /** A booking made in /buchen replaces the demo data. */
+  const booking = own.length > 0 ? "upcoming" : mockBooking;
+  const mockNextSession = own[0] ? { ...mockNextSessionBase, ...fmt(own[0].start), location: "Private Gym" } : mockNextSessionBase;
+  const upcomingList = own.length > 0 ? own.slice(0, 3).map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) })) : mockUpcomingBookings;
+  const hoursAvailable = Math.max(0, m.hoursAvailable - mine.length);
 
   return (
     <MemberShell>
@@ -88,10 +104,10 @@ function Home() {
         <div className="border-b border-border py-8 sm:pl-10">
           <Eyebrow>Verfügbare Einheiten</Eyebrow>
           <p className="mt-4 text-2xl font-light md:text-3xl">
-            {m.hoursAvailable} Stunden <span className="text-muted-foreground">verfügbar</span>
+            {hoursAvailable} Stunden <span className="text-muted-foreground">verfügbar</span>
           </p>
           <div className="mt-4 h-px w-full bg-border">
-            <div className="h-px bg-foreground" style={{ width: `${(m.hoursAvailable / m.hoursTotal) * 100}%` }} />
+            <div className="h-px bg-foreground" style={{ width: `${(hoursAvailable / m.hoursTotal) * 100}%` }} />
           </div>
         </div>
       </section>
@@ -103,7 +119,7 @@ function Home() {
             <Link to="/buchungen" className="eyebrow hover:text-foreground">Alle</Link>
           </div>
           <ul className="mt-6 border-t border-border">
-            {(booking === "upcoming" ? mockUpcomingBookings : []).map((b) => (
+            {(booking === "upcoming" ? upcomingList : []).map((b) => (
               <li key={b.id} className="flex items-center justify-between border-b border-border py-5">
                 <div>
                   <p className="text-sm">{b.dateLabel}</p>
