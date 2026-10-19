@@ -33,6 +33,10 @@ export function addMemberBooking(start: string) {
   return b;
 }
 
+export function cancelMemberBooking(id: string) {
+  write(read().filter((b) => b.id !== id));
+}
+
 export function useMemberBookings() {
   return useSyncExternalStore(
     (cb) => {

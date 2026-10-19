@@ -5,6 +5,7 @@ import { MemberShell } from "@/components/layout/MemberShell";
 import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
 import { useAuthState } from "@/lib/auth-state";
 import { KEY_VALID_MS, generateAccessKey, useAccessKey } from "@/lib/access-key";
+import { weeklyUnitsLeft, WEEKLY_LIMIT } from "@/lib/booking-rules";
 import { useMemberBookings } from "@/lib/member-bookings";
 import { formatDuration, sessionTimes, useNow } from "@/lib/session-timers";
 import { mockMember, mockNextSession as mockNextSessionBase, mockUpcomingBookings } from "@/lib/mock-data";
@@ -45,7 +46,8 @@ function Home() {
   const booking = own.length > 0 ? "upcoming" : mockBooking;
   const mockNextSession = own[0] ? { ...mockNextSessionBase, ...fmt(own[0].start), location: "Private Gym" } : mockNextSessionBase;
   const upcomingList = own.length > 0 ? own.slice(0, 3).map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) })) : mockUpcomingBookings;
-  const hoursAvailable = Math.max(0, m.hoursAvailable - mine.length);
+  const weeklyLimit = WEEKLY_LIMIT[m.membership.name] ?? 1;
+  const unitsLeft = weeklyUnitsLeft(m.membership.name, mine, now ?? new Date());
 
   /**
    * Booked window. Without a real booking the demo follows the mock switch: "Ab 17:30" → session starts in 2.5 h,
@@ -95,9 +97,8 @@ function Home() {
                 {t?.phase === "live" ? "Verbleibende Trainingszeit" : t?.phase === "over" ? "Session beendet" : "Startet mit Beginn deiner Session"}
               </p>
             </div>
-            <ButtonLink to="/buchungen" className="mt-10 w-full sm:w-auto">Session ansehen</ButtonLink>
           </div>
-          <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 text-primary-foreground md:p-10">
+          <div className="flex flex-col rounded-2xl bg-primary p-8 text-primary-foreground md:p-10">
             <div className="flex items-center justify-between">
               <Eyebrow className="text-primary-foreground/75">Zutritt</Eyebrow>
               <KeyRound className="h-4 w-4 text-primary-foreground/75" strokeWidth={1.25} />
@@ -108,7 +109,7 @@ function Home() {
                 <p className="mt-4 text-sm text-primary-foreground/80">Dein Zutrittscode ist aktiv. Bitte am Eingang eingeben.</p>
               </div>
             ) : canGenerate ? (
-              <div className="mt-10">
+              <div className="mt-8">
                 <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">
                   {myKey ? "Dein Code ist abgelaufen. Du kannst einen neuen erzeugen." : "Erzeuge deinen Zutrittscode. Er ist ab dem Erzeugen 1 Stunde gültig."}
@@ -118,7 +119,7 @@ function Home() {
                 </button>
               </div>
             ) : (
-              <div className="mt-10">
+              <div className="mt-8">
                 <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">
                   {t && t.codeExpired ? "Die Session ist beendet." : `Dein Zutrittscode steht ab ${t ? hm(t.codeFrom) : mockNextSession.accessAvailableFrom} Uhr zur Verfügung.`}
@@ -158,13 +159,15 @@ function Home() {
           <p className="mt-2 text-sm text-muted-foreground">Verlängert sich am {m.membership.renewsOn}</p>
         </Link>
         <div className="border-b border-border py-8 sm:pl-10">
-          <Eyebrow>Verfügbare Einheiten</Eyebrow>
+          <Eyebrow>Verfügbare Wocheneinheiten</Eyebrow>
           <p className="mt-4 text-2xl font-light md:text-3xl">
-            {hoursAvailable} Stunden <span className="text-muted-foreground">verfügbar</span>
+            {unitsLeft === Infinity ? "Unbegrenzt" : `${unitsLeft} von ${weeklyLimit}`} <span className="text-muted-foreground">diese Woche · {m.membership.name}</span>
           </p>
-          <div className="mt-4 h-px w-full bg-border">
-            <div className="h-px bg-foreground" style={{ width: `${(hoursAvailable / m.hoursTotal) * 100}%` }} />
-          </div>
+          {weeklyLimit !== Infinity && (
+            <div className="mt-4 h-px w-full bg-border">
+              <div className="h-px bg-foreground" style={{ width: `${(unitsLeft / weeklyLimit) * 100}%` }} />
+            </div>
+          )}
         </div>
       </section>
 

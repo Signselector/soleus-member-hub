@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { ButtonLink } from "@/components/ui-soleus/primitives";
-import { MAX_DAYS_AHEAD, MIN_HOURS_BEFORE, slotState } from "@/lib/booking-rules";
+import { MAX_DAYS_AHEAD, MIN_HOURS_BEFORE, slotState, weeklyUnitsLeft } from "@/lib/booking-rules";
 import { addMemberBooking, useMemberBookings } from "@/lib/member-bookings";
 import { mockMember } from "@/lib/mock-data";
 import { seedBookings } from "@/lib/admin/mock";
@@ -50,7 +50,7 @@ export function PrivateGymBooking() {
 
   if (!now || !view) return <div className="mt-10 h-[520px]" aria-hidden />;
 
-  const hoursLeft = Math.max(0, mockMember.hoursAvailable - mine.length);
+  const hoursLeft = weeklyUnitsLeft(mockMember.membership.name, mine, day ?? now ?? new Date());
   const stateOf = (d: Date, h: number) => {
     const s = slotState(at(d, h), now);
     if (s !== "ok") return s;
@@ -178,7 +178,7 @@ export function PrivateGymBooking() {
           ) : (
             <p className="mt-3 text-sm font-light text-[#f7f5f1]/70">Noch kein Termin gewählt.</p>
           )}
-          <p className="mt-4 text-xs text-[#f7f5f1]/70">Verfügbare Einheiten: <span className="tabular-nums">{hoursLeft}</span>{hoursLeft < 1 && " · keine Einheit übrig"}</p>
+          <p className="mt-4 text-xs text-[#f7f5f1]/70">Verfügbare Wocheneinheiten: <span className="tabular-nums">{hoursLeft === Infinity ? "∞" : hoursLeft}</span>{hoursLeft < 1 && " · keine Einheit in dieser Woche übrig"}</p>
           <button type="button" disabled={!day || hour === null || hoursLeft < 1} onClick={confirm} className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#e8dfcd] px-8 text-[0.6875rem] font-bold uppercase tracking-[0.18em] text-[#3b2a20] transition-opacity hover:opacity-90 disabled:opacity-40">
             Verbindlich buchen
           </button>

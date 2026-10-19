@@ -15,3 +15,18 @@ export function slotState(start: Date, now: Date): SlotState {
 
 /** Latest day (inclusive) that can still be booked. */
 export const lastBookableDay = (now: Date) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + MAX_DAYS_AHEAD);
+
+/** Weekly training units per plan (Unlimited = no limit). */
+export const WEEKLY_LIMIT: Record<string, number> = { Standard: 1, Plus: 2, Premium: 3, Unlimited: Infinity };
+
+const weekKey = (d: Date) => {
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+  return `${m.getFullYear()}-${m.getMonth()}-${m.getDate()}`;
+};
+
+/** Units still free in the calendar week (Mon–Sun) of `day`, given the member's bookings. */
+export function weeklyUnitsLeft(plan: string, bookings: { start: string }[], day: Date): number {
+  const limit = WEEKLY_LIMIT[plan] ?? 1;
+  const used = bookings.filter((b) => weekKey(new Date(b.start)) === weekKey(day)).length;
+  return Math.max(0, limit - used);
+}
