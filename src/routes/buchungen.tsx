@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MemberShell } from "@/components/layout/MemberShell";
 import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
@@ -81,7 +81,6 @@ function Page() {
           <List items={past} />
         </section>
       )}
-      <p className="mt-12 text-xs text-muted-foreground"><Link to="/buchen" className="underline underline-offset-4">Neue Session buchen</Link></p>
     </MemberShell>
   );
 }

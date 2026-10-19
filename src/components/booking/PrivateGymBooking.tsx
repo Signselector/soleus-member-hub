@@ -9,6 +9,7 @@ import { SEED_AVAILABILITY } from "@/lib/admin/mock2";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const pad = (n: number) => String(n).padStart(2, "0");
 const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -54,7 +55,10 @@ export function PrivateGymBooking() {
   const stateOf = (d: Date, h: number) => {
     const s = slotState(at(d, h), now);
     if (s !== "ok") return s;
-    return taken.has(iso(d, h)) ? ("taken" as const) : ("free" as const);
+    if (taken.has(iso(d, h))) return "taken" as const;
+    if (mine.some((b) => sameDay(new Date(b.start), d))) return "day_limit" as const;
+    if (weeklyUnitsLeft(mockMember.membership.name, mine, d) < 1) return "week_limit" as const;
+    return "free" as const;
   };
   const dayFree = (d: Date) => hoursOf(d).some((h) => stateOf(d, h) === "free");
 
@@ -160,7 +164,7 @@ export function PrivateGymBooking() {
                     )}
                   >
                     <span className={cn(!ok && "line-through")}>{hh(h)}</span>
-                    {!ok && <span className="text-[0.5625rem] uppercase tracking-[0.15em]">{s === "taken" ? "Belegt" : s === "too_soon" ? "Zu kurzfristig" : ""}</span>}
+                    {!ok && <span className="text-[0.5625rem] uppercase tracking-[0.15em]">{s === "taken" ? "Belegt" : s === "too_soon" ? "Zu kurzfristig" : s === "day_limit" ? "1 pro Tag" : s === "week_limit" ? "Wochenlimit" : ""}</span>}
                   </button>
                 );
               })}
@@ -179,6 +183,7 @@ export function PrivateGymBooking() {
             <p className="mt-3 text-sm font-light text-[#f7f5f1]/70">Noch kein Termin gewählt.</p>
           )}
           <p className="mt-4 text-xs text-[#f7f5f1]/70">Verfügbare Wocheneinheiten: <span className="tabular-nums">{hoursLeft === Infinity ? "∞" : hoursLeft}</span>{hoursLeft < 1 && " · keine Einheit in dieser Woche übrig"}</p>
+          <p className="mt-1 text-xs text-[#f7f5f1]/70">Maximal 1 Buchung pro Tag.</p>
           <button type="button" disabled={!day || hour === null || hoursLeft < 1} onClick={confirm} className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#e8dfcd] px-8 text-[0.6875rem] font-bold uppercase tracking-[0.18em] text-[#3b2a20] transition-opacity hover:opacity-90 disabled:opacity-40">
             Verbindlich buchen
           </button>

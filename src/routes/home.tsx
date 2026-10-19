@@ -45,7 +45,7 @@ function Home() {
   /** A booking made in /buchen replaces the demo data. */
   const booking = own.length > 0 ? "upcoming" : mockBooking;
   const mockNextSession = own[0] ? { ...mockNextSessionBase, ...fmt(own[0].start), location: "Private Gym" } : mockNextSessionBase;
-  const upcomingList = own.length > 0 ? own.slice(0, 3).map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) })) : mockUpcomingBookings;
+  const upcomingList = own.length > 0 ? own.map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) })) : mockUpcomingBookings;
   const weeklyLimit = WEEKLY_LIMIT[m.membership.name] ?? 1;
   const unitsLeft = weeklyUnitsLeft(m.membership.name, mine, now ?? new Date());
 
@@ -175,7 +175,6 @@ function Home() {
         <div>
           <div className="flex items-baseline justify-between">
             <Eyebrow>Nächste Buchungen</Eyebrow>
-            <Link to="/buchungen" className="eyebrow hover:text-foreground">Alle</Link>
           </div>
           <ul className="mt-6 border-t border-border">
             {(booking === "upcoming" ? upcomingList : []).map((b) => (
