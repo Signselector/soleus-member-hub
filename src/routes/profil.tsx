@@ -103,7 +103,7 @@ const Grid = ({ children }: { children: ReactNode }) => <dl className="grid gap-
 
 function Input({ label, id, ...p }: { label: string; id: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label htmlFor={id} className="block">
+    <label htmlFor={id} className="flex flex-col justify-end">
       <span className="eyebrow">{label}</span>
       <input id={id} className={inputBox} {...p} />
     </label>

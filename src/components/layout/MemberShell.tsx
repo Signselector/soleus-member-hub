@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { CalendarPlus, Home, ListChecks, CreditCard, User } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { CalendarPlus, Home, ListChecks, CreditCard, LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Wordmark } from "@/components/ui-soleus/primitives";
 import { useAuthState } from "@/lib/auth-state";
@@ -13,7 +13,12 @@ const nav = [
 ] as const;
 
 export function MemberShell({ children }: { children: ReactNode }) {
-  const { role } = useAuthState();
+  const { role, setUser } = useAuthState();
+  const navigate = useNavigate();
+  const logout = () => {
+    setUser("guest");
+    void navigate({ to: "/login" });
+  };
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 glass-light border-x-0 border-t-0 border-b-border">
@@ -32,19 +37,31 @@ export function MemberShell({ children }: { children: ReactNode }) {
                 {n.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={logout}
+              className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors duration-300 hover:text-foreground"
+            >
+              Abmelden
+            </button>
             {role === "admin" && (
               <Link to="/admin" className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-foreground underline underline-offset-8">
                 Admin
               </Link>
             )}
           </nav>
-          <Link
-            to="/profil"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-[0.6875rem] tracking-[0.1em] md:hidden"
-            aria-label="Profil"
-          >
-            MM
-          </Link>
+          <div className="flex items-center gap-3 md:hidden">
+            <Link
+              to="/profil"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-[0.6875rem] tracking-[0.1em] md:hidden"
+              aria-label="Profil"
+            >
+              MM
+            </Link>
+            <button type="button" onClick={logout} aria-label="Abmelden" className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground">
+              <LogOut className="h-4 w-4" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
       </header>
 
