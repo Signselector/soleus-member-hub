@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useRef } from "react";
 import { ArrowUpRight, KeyRound } from "lucide-react";
 import { MemberShell } from "@/components/layout/MemberShell";
 import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
 import { useAuthState } from "@/lib/auth-state";
+import { KEY_VALID_MS, generateAccessKey, useAccessKey } from "@/lib/access-key";
 import { useMemberBookings } from "@/lib/member-bookings";
 import { formatDuration, sessionTimes, useNow } from "@/lib/session-timers";
 import { mockMember, mockNextSession as mockNextSessionBase, mockUpcomingBookings } from "@/lib/mock-data";
@@ -47,20 +49,24 @@ function Home() {
 
   /**
    * Booked window. Without a real booking the demo follows the mock switch: "Ab 17:30" → session starts in 2.5 h,
-   * "Aktiv" → session started 10 min ago.
+   * "Aktiv" → session started 10 min ago. The anchor keeps the demo window stable while the clock ticks.
    */
-  const demoStart = (() => {
-    if (!now) return null;
-    const t = new Date(now.getTime() + (access === "active" ? -10 : 150) * 60_000);
-    t.setSeconds(0, 0);
-    return t;
-  })();
+  const anchor = useRef<number | null>(null);
+  if (now && anchor.current === null) anchor.current = now.getTime();
+  const demoStart = anchor.current === null ? null : new Date(Math.floor((anchor.current + (access === "active" ? -10 : 150) * 60_000) / 60_000) * 60_000);
   const sStart = own[0] ? new Date(own[0].start) : booking === "upcoming" ? demoStart : null;
   const sEnd = sStart ? new Date(sStart.getTime() + 3_600_000) : null;
   const t = now && sStart && sEnd ? sessionTimes(sStart, sEnd, now) : null;
   const hm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
   const showSession = own[0] || !sStart ? mockNextSession : { ...mockNextSession, dateLabel: "Heute", time: `${hm(sStart)} — ${hm(sEnd!)}` };
-  const codeVisible = !!t && (t.codeActive || (!own[0] && access === "active" && !t.codeExpired));
+
+  /** Key: can be generated from 30 min before the session until it ends; then valid for 1 h from generation. */
+  const sessionId = own[0]?.id ?? "demo";
+  const key = useAccessKey();
+  const myKey = key && key.sessionId === sessionId ? key : null;
+  const keyLeft = myKey && now ? Math.max(0, myKey.generatedAt + KEY_VALID_MS - now.getTime()) : 0;
+  const keyValid = !!myKey && keyLeft > 0;
+  const canGenerate = !!t && (t.codeActive || (!own[0] && access === "active" && !t.codeExpired));
 
   return (
     <MemberShell>
@@ -77,19 +83,18 @@ function Home() {
             </h1>
             <p className="mt-6 text-sm uppercase tracking-[0.2em]">{showSession.location}</p>
 
-            {t && (
+            {t && t.phase === "live" && (
               <div className="mt-8 max-w-sm" role="timer" aria-label="Session-Timer">
                 <Eyebrow>Session-Timer</Eyebrow>
                 <p className="mt-3 text-3xl font-light tabular-nums tracking-tight">
-                  {t.phase === "before" && <><span className="text-base text-muted-foreground">Beginnt in </span>{formatDuration(t.toStart)}</>}
-                  {t.phase === "live" && <><span className="text-base text-muted-foreground">Noch </span>{formatDuration(t.toEnd)}</>}
-                  {t.phase === "over" && <span className="text-xl text-muted-foreground">Session beendet</span>}
+                  <span className="text-base text-muted-foreground">Noch </span>{formatDuration(t.toEnd)}
                 </p>
                 <div className="mt-3 h-px w-full bg-border" aria-hidden>
-                  <div className="h-px bg-foreground transition-[width] duration-1000" style={{ width: `${t.progress * 100}%` }} />
+                  <div className="h-px bg-foreground transition-[width] duration-1000" style={{ width: `${(1 - t.progress) * 100}%` }} />
                 </div>
               </div>
             )}
+            {t && t.phase === "over" && <p className="mt-8 text-sm text-muted-foreground">Session beendet.</p>}
             <ButtonLink to="/buchungen" className="mt-10 w-full sm:w-auto">Session ansehen</ButtonLink>
           </div>
           <div className="flex flex-col justify-between rounded-2xl bg-primary p-8 text-primary-foreground md:p-10">
@@ -97,36 +102,35 @@ function Home() {
               <Eyebrow className="text-primary-foreground/75">Zutritt</Eyebrow>
               <KeyRound className="h-4 w-4 text-primary-foreground/75" strokeWidth={1.25} />
             </div>
-            {t && codeVisible ? (
+            {keyValid && myKey ? (
               <div className="mt-10">
-                <p className="text-4xl font-light tracking-[0.15em] tabular-nums md:text-5xl">{mockNextSession.accessCode}</p>
+                <p className="text-4xl font-light tracking-[0.15em] tabular-nums md:text-5xl">{myKey.code.split("").join(" ")}</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">Dein Zutrittscode ist aktiv. Gib ihn am Eingang ein.</p>
                 <div className="mt-6 border-t border-primary-foreground/20 pt-5" role="timer" aria-label="Gültigkeit des Zutrittscodes">
                   <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-primary-foreground/70">Code gültig noch</p>
-                  <p className="mt-2 text-2xl font-light tabular-nums">{formatDuration(t.toEnd)}</p>
+                  <p className="mt-2 text-2xl font-light tabular-nums">{formatDuration(keyLeft)}</p>
                   <div className="mt-3 h-px w-full bg-primary-foreground/20" aria-hidden>
-                    <div className="h-px bg-primary-foreground transition-[width] duration-1000" style={{ width: `${(1 - t.codeProgress) * 100}%` }} />
+                    <div className="h-px bg-primary-foreground transition-[width] duration-1000" style={{ width: `${(keyLeft / KEY_VALID_MS) * 100}%` }} />
                   </div>
-                  <p className="mt-2 text-xs text-primary-foreground/70">Gültig bis {hm(sEnd!)} Uhr</p>
+                  <p className="mt-2 text-xs text-primary-foreground/70">Erzeugt um {hm(new Date(myKey.generatedAt))} Uhr · 1 Stunde gültig</p>
                 </div>
               </div>
-            ) : t && t.codeExpired ? (
+            ) : canGenerate ? (
               <div className="mt-10">
                 <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
-                <p className="mt-4 text-sm text-primary-foreground/80">Der Zutrittscode ist abgelaufen.</p>
+                <p className="mt-4 text-sm text-primary-foreground/80">
+                  {myKey ? "Dein Code ist abgelaufen. Du kannst einen neuen erzeugen." : "Erzeuge deinen Zutrittscode. Er ist ab dem Erzeugen 1 Stunde gültig."}
+                </p>
+                <button type="button" onClick={() => generateAccessKey(sessionId)} className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#e8dfcd] px-8 text-[0.6875rem] font-bold uppercase tracking-[0.18em] text-[#3b2a20] transition-opacity hover:opacity-90">
+                  {myKey ? "Neuen Code erzeugen" : "Zutrittscode erzeugen"}
+                </button>
               </div>
             ) : (
               <div className="mt-10">
                 <p className="text-4xl font-light tracking-[0.15em] text-primary-foreground/40">— — — —</p>
                 <p className="mt-4 text-sm text-primary-foreground/80">
-                  Zutrittscode ab {t ? hm(t.codeFrom) : mockNextSession.accessAvailableFrom} verfügbar.
+                  {t && t.codeExpired ? "Die Session ist beendet." : `Zutrittscode ab ${t ? hm(t.codeFrom) : mockNextSession.accessAvailableFrom} erzeugbar.`}
                 </p>
-                {t && (
-                  <div className="mt-6 border-t border-primary-foreground/20 pt-5" role="timer" aria-label="Freischaltung des Zutrittscodes">
-                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-primary-foreground/70">Freischaltung in</p>
-                    <p className="mt-2 text-2xl font-light tabular-nums">{formatDuration(t.toCodeFrom)}</p>
-                  </div>
-                )}
               </div>
             )}
           </div>
