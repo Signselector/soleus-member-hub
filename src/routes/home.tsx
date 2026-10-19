@@ -150,15 +150,15 @@ function Home() {
         </section>
       )}
 
-      <section className="mt-20 grid border-t border-border sm:grid-cols-2 md:mt-28">
-        <Link to="/mitgliedschaft" className="group border-b border-border py-8 sm:border-r sm:pr-10">
+      <section className="mt-16 grid gap-6 sm:grid-cols-2 md:mt-20">
+        <Link to="/mitgliedschaft" className="group rounded-2xl bg-secondary p-8 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] transition-colors hover:bg-secondary/80 md:p-10">
           <Eyebrow>Mitgliedschaft</Eyebrow>
           <p className="mt-4 text-2xl font-light md:text-3xl">
             {m.membership.name} <span className="text-muted-foreground">· {m.membership.price}/{m.membership.interval}</span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground">Verlängert sich am {m.membership.renewsOn}</p>
         </Link>
-        <div className="border-b border-border py-8 sm:pl-10">
+        <div className="rounded-2xl bg-card p-8 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-10">
           <Eyebrow>Verfügbare Wocheneinheiten</Eyebrow>
           <p className="mt-4 text-2xl font-light md:text-3xl">
             {unitsLeft === Infinity ? "Unbegrenzt" : `${unitsLeft} von ${weeklyLimit}`} <span className="text-muted-foreground">diese Woche · {m.membership.name}</span>
@@ -171,8 +171,8 @@ function Home() {
         </div>
       </section>
 
-      <section className="mt-20 grid gap-16 md:mt-28 md:grid-cols-[1.4fr_1fr]">
-        <div>
+      <section className="mt-6 grid gap-6 md:grid-cols-[1.4fr_1fr]">
+        <div className="rounded-2xl bg-card p-8 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-10">
           <div className="flex items-baseline justify-between">
             <Eyebrow>Nächste Buchungen</Eyebrow>
           </div>
@@ -191,14 +191,14 @@ function Home() {
             )}
           </ul>
         </div>
-        <div>
+        <div className="rounded-2xl bg-secondary p-8 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-10">
           <Eyebrow>Schnellaktionen</Eyebrow>
           <ul className="mt-6 border-t border-border">
             {quick.map((q) => (
               <li key={q.to}>
                 <Link
                   to={q.to}
-                  className="group flex min-h-14 items-center justify-between border-b border-border text-[0.6875rem] uppercase tracking-[0.2em] transition-colors hover:text-muted-foreground"
+                  className="group flex min-h-14 items-center justify-between border-b border-[#3b2a20]/15 text-[0.6875rem] uppercase tracking-[0.2em] transition-colors hover:text-muted-foreground"
                 >
                   {q.label}
                   <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" strokeWidth={1.25} />

@@ -47,7 +47,7 @@ function Page() {
 
         <div className="mt-10">
           <Eyebrow>Zusatzleistung</Eyebrow>
-          <div className="mt-5 flex flex-col justify-between gap-8 rounded-2xl bg-[#211d1b] p-8 text-[#f7f5f1] shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:flex-row md:items-end md:p-10">
+          <div className="mt-5 flex flex-col justify-between gap-8 rounded-2xl bg-primary p-8 text-primary-foreground shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:flex-row md:items-end md:p-10">
             <div className="max-w-xl">
               <span className="flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/12">
@@ -97,7 +97,7 @@ function Page() {
                     ? "bg-[#f7f5f1]/50 text-foreground opacity-50 grayscale"
                     : dark
                       ? "bg-[#211d1b] text-[#f7f5f1]"
-                      : "bg-[#f7f5f1] text-foreground"
+                        : "bg-card text-foreground"
                 } ${isCurrent ? "ring-2 ring-[#211d1b]" : ""}`}
               >
                 {(isCurrent || p.badge) && (

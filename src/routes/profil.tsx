@@ -32,7 +32,9 @@ function Section<K extends keyof MemberProfile>({
   view,
   edit,
   validate,
+  tone = "card",
 }: {
+  tone?: "card" | "sand";
   title: string;
   keys: K[];
   profile: MemberProfile;
@@ -61,7 +63,7 @@ function Section<K extends keyof MemberProfile>({
   };
 
   return (
-    <section className="rounded-2xl bg-[#f7f5f1] p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
+    <section className={cn("rounded-2xl p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8", tone === "sand" ? "bg-secondary" : "bg-card")}>
       <div className="flex items-center justify-between gap-4">
         <Eyebrow>{title}</Eyebrow>
         {!editing && (
@@ -141,7 +143,7 @@ function PasswordSection() {
   };
 
   return (
-    <section className="rounded-2xl bg-[#f7f5f1] p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
+    <section className="rounded-2xl bg-card p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
       <div className="flex items-center justify-between gap-4">
         <Eyebrow>Passwort</Eyebrow>
         {!open && (
@@ -220,6 +222,7 @@ function Page() {
 
         <Section
           title="Anschrift"
+          tone="sand"
           keys={["street", "zip", "city", "state"]}
           profile={p}
           validate={(d) => (!d.street.trim() || !d.zip.trim() || !d.city.trim() ? "Bitte fülle Straße, PLZ und Stadt aus." : null)}
@@ -289,7 +292,7 @@ function Page() {
           )}
         />
 
-        <section className="rounded-2xl bg-[#f7f5f1] p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
+        <section className="rounded-2xl bg-secondary p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
           <Eyebrow>Benachrichtigungen</Eyebrow>
           <div className="mt-4">
             <Toggle checked={p.notifyEmail} onChange={(v) => saveMemberProfile({ notifyEmail: v })}>Buchungsbestätigungen per E-Mail</Toggle>
@@ -299,15 +302,15 @@ function Page() {
 
         <PasswordSection />
 
-        <section className="rounded-2xl bg-[#f7f5f1] p-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
-          <Eyebrow>Konto</Eyebrow>
-          <div className="mt-6">
+        <section className="rounded-2xl bg-primary p-6 text-primary-foreground shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:p-8">
+          <Eyebrow className="text-primary-foreground/75">Konto</Eyebrow>
+          <div className="mt-6 [&_dt]:text-primary-foreground/70">
             <Grid>
               <Row label="Mitglied seit">{m.memberSince}</Row>
               <Row label="Abo">{m.membership.name} · {m.membership.price}/{m.membership.interval}</Row>
             </Grid>
           </div>
-          <Button variant="outline" className="mt-8" onClick={() => { setUser("guest"); void navigate({ to: "/login" }); }}>Abmelden</Button>
+          <Button variant="sand" className="mt-8" onClick={() => { setUser("guest"); void navigate({ to: "/login" }); }}>Abmelden</Button>
         </section>
       </div>
     </MemberShell>

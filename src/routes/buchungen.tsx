@@ -32,10 +32,10 @@ function Page() {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const canCancel = (iso: string) => !!now && (parse(iso).getTime() - now.getTime()) / 3_600_000 >= MIN_HOURS_BEFORE;
 
-  const List = ({ items, cancellable }: { items: typeof mine; cancellable?: boolean }) => (
-    <ul className="mt-6 border-t border-border">
+  const List = ({ items, cancellable, tone = "card" }: { items: typeof mine; cancellable?: boolean; tone?: "card" | "sand" }) => (
+    <ul className={`mt-6 divide-y divide-[#3b2a20]/10 rounded-2xl px-6 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:px-8 ${tone === "sand" ? "bg-secondary" : "bg-card"}`}>
       {items.map((b) => (
-        <li key={b.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border py-5">
+        <li key={b.id} className="flex flex-wrap items-center justify-between gap-4 py-5">
           <div>
             <p className="text-sm">{label(b.start)}</p>
             <p className="mt-1 text-xs uppercase tracking-[0.15em] text-muted-foreground">Private Gym</p>
@@ -69,7 +69,7 @@ function Page() {
         <Eyebrow>Kommend</Eyebrow>
         <p className="mt-2 text-xs text-muted-foreground">Stornieren ist bis {MIN_HOURS_BEFORE} Stunden vor Beginn möglich.</p>
         {upcoming.length === 0 ? (
-          <div className="mt-6 border-t border-border pt-6">
+          <div className="mt-6 rounded-2xl bg-card p-8 shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)]">
             <p className="text-sm text-muted-foreground">Keine kommenden Buchungen.</p>
             <ButtonLink to="/buchen" className="mt-6">Training buchen</ButtonLink>
           </div>
@@ -78,7 +78,7 @@ function Page() {
       {past.length > 0 && (
         <section className="mt-16">
           <Eyebrow>Vergangen</Eyebrow>
-          <List items={past} />
+          <List items={past} tone="sand" />
         </section>
       )}
     </MemberShell>
