@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowUpRight, Check, Lock } from "lucide-react";
+import { ArrowUpRight, Check, Lock, Users } from "lucide-react";
 import { MemberShell } from "@/components/layout/MemberShell";
 import { Button, Eyebrow } from "@/components/ui-soleus/primitives";
-import { mockMember, mockPlans } from "@/lib/mock-data";
+import { mockFamilyFriends, mockMember, mockPlans } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/mitgliedschaft")({
   head: () => ({
@@ -23,6 +23,7 @@ function Page() {
   const currentId = mockPlans.find((p) => p.name === mockMember.membership.name)?.id ?? "standard";
   const currentTier = TIER_ORDER.indexOf(currentId);
   const [requested, setRequested] = useState<string | null>(null);
+  const [ff, setFf] = useState(false);
 
   return (
     <MemberShell>
@@ -112,6 +113,42 @@ function Page() {
               </div>
             );
           })}
+        </div>
+        <div className="mt-12">
+          <Eyebrow>Zusatzleistung</Eyebrow>
+          <div className="mt-5 flex flex-col justify-between gap-8 rounded-2xl bg-[#211d1b] p-8 text-[#f7f5f1] shadow-[0_18px_40px_-26px_rgba(33,29,27,0.35)] md:flex-row md:items-end md:p-10">
+            <div className="max-w-xl">
+              <span className="flex items-center gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/12">
+                  <Users className="h-4 w-4" strokeWidth={1.75} />
+                </span>
+                <span className="text-[0.625rem] font-bold uppercase tracking-[0.3em] text-[#f7f5f1]/75">Add-on · Zu jedem Abo</span>
+              </span>
+              <h2 className="mt-6 text-2xl font-medium tracking-tight md:text-3xl">Family &amp; Friends</h2>
+              <p className="mt-3 text-base leading-relaxed font-light text-[#f7f5f1]/80">
+                Bringe jedes Mal bis zu {mockFamilyFriends.guests} Personen kostenlos mit ins Studio. Die Begleitpersonen können Erwachsene
+                und/oder Kinder sein und dürfen das Studio nur gemeinsam mit dir nutzen.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-5 md:items-end">
+              <p className="flex items-baseline gap-2">
+                <span className="text-5xl font-light tracking-tight">+{mockFamilyFriends.price}</span>
+                <span className="text-sm font-light text-[#f7f5f1]/75">€ / Monat</span>
+              </p>
+              <Button
+                variant="sand"
+                onClick={() => setFf((v) => !v)}
+                className="bg-[#e8dfcd] font-bold text-[#3b2a20] hover:bg-[#e8dfcd]/90"
+              >
+                {ff ? "Hinzugefügt ✓ · Entfernen" : "Hinzufügen"}
+              </Button>
+            </div>
+          </div>
+          {ff && (
+            <p className="mt-3 text-sm font-light text-muted-foreground">
+              Family &amp; Friends vorgemerkt. Die Abrechnung folgt, sobald die Zahlungsanbindung aktiv ist.
+            </p>
+          )}
         </div>
       </div>
     </MemberShell>
