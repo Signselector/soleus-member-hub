@@ -1,14 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef } from "react";
 import { ArrowUpRight, KeyRound } from "lucide-react";
 import { MemberShell } from "@/components/layout/MemberShell";
 import { ButtonLink, Eyebrow } from "@/components/ui-soleus/primitives";
-import { useAuthState } from "@/lib/auth-state";
 import { KEY_VALID_MS, generateAccessKey, useAccessKey } from "@/lib/access-key";
 import { weeklyUnitsLeft, WEEKLY_LIMIT } from "@/lib/booking-rules";
 import { useMemberBookings } from "@/lib/member-bookings";
 import { formatDuration, sessionTimes, useNow } from "@/lib/session-timers";
-import { mockMember, mockNextSession as mockNextSessionBase, mockUpcomingBookings } from "@/lib/mock-data";
+import { mockMember, mockNextSession as mockNextSessionBase } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -31,8 +29,7 @@ const quick = [
 ] as const;
 
 function Home() {
-  const { booking: mockBooking, access } = useAuthState();
-  const m = mockMember;
+    const m = mockMember;
   const mine = useMemberBookings();
   const now = useNow();
   /** A session stays "next" until it has ended. */
@@ -40,35 +37,28 @@ function Home() {
   const pad = (n: number) => String(n).padStart(2, "0");
   const fmt = (iso: string) => {
     const d = new Date(iso);
-    return { dateLabel: d.toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "short" }), time: `${pad(d.getHours())}:00 — ${pad(d.getHours() + 1)}:00` };
+    return { dateLabel: now && d.toDateString() === now.toDateString() ? "Heute" : d.toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "short" }), time: `${pad(d.getHours())}:00 — ${pad(d.getHours() + 1)}:00` };
   };
   /** A booking made in /buchen replaces the demo data. */
-  const booking = own.length > 0 ? "upcoming" : mockBooking;
+  const booking = own.length > 0 ? "upcoming" : "none";
   const mockNextSession = own[0] ? { ...mockNextSessionBase, ...fmt(own[0].start), location: "Private Gym" } : mockNextSessionBase;
-  const upcomingList = own.length > 0 ? own.map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) })) : mockUpcomingBookings;
+  const upcomingList = own.map((b) => ({ id: b.id, location: "Private Gym", ...fmt(b.start) }));
   const weeklyLimit = WEEKLY_LIMIT[m.membership.name] ?? 1;
   const unitsLeft = weeklyUnitsLeft(m.membership.name, mine, now ?? new Date());
 
-  /**
-   * Booked window. Without a real booking the demo follows the mock switch: "Ab 17:30" → session starts in 2.5 h,
-   * "Aktiv" → session started 10 min ago. The anchor keeps the demo window stable while the clock ticks.
-   */
-  const anchor = useRef<number | null>(null);
-  if (now && anchor.current === null) anchor.current = now.getTime();
-  const demoStart = anchor.current === null ? null : new Date(Math.floor((anchor.current + (access === "active" ? -10 : 150) * 60_000) / 60_000) * 60_000);
-  const sStart = own[0] ? new Date(own[0].start) : booking === "upcoming" ? demoStart : null;
+  const sStart = own[0] ? new Date(own[0].start) : null;
   const sEnd = sStart ? new Date(sStart.getTime() + 3_600_000) : null;
   const t = now && sStart && sEnd ? sessionTimes(sStart, sEnd, now) : null;
   const hm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  const showSession = own[0] || !sStart ? mockNextSession : { ...mockNextSession, dateLabel: "Heute", time: `${hm(sStart)} — ${hm(sEnd!)}` };
+  const showSession = mockNextSession;
 
   /** Key: can be generated from 30 min before the session until it ends; then valid for 1 h from generation. */
-  const sessionId = own[0]?.id ?? "demo";
+  const sessionId = own[0]?.id ?? "none";
   const key = useAccessKey();
   const myKey = key && key.sessionId === sessionId ? key : null;
   const keyLeft = myKey && now ? Math.max(0, myKey.generatedAt + KEY_VALID_MS - now.getTime()) : 0;
   const keyValid = !!myKey && keyLeft > 0;
-  const canGenerate = !!t && (t.codeActive || (!own[0] && access === "active" && !t.codeExpired));
+  const canGenerate = !!t && t.codeActive;
 
   return (
     <MemberShell>
